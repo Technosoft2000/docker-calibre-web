@@ -33,8 +33,8 @@ if [ ! -f $CW_HOME/app/config.ini ]; then
     echo "[INFO] Initializing the configuration file for the first start ..."
     cp $CW_HOME/app/config.ini.example $CW_HOME/app/config.ini
     # set DB_ROOT value
-    echo "> Set configuration key DB_ROOT = $SYNO_HOME/books"
-    sed -i 's/^DB_ROOT =/DB_ROOT = $SYNO_HOME\/books/g' $CW_HOME/app/config.ini
+    echo "> Set configuration key DB_ROOT = $CALIBRE_PATH"
+    sed -i "s|^DB_ROOT =|DB_ROOT = $CALIBRE_PATH|g" $CW_HOME/app/config.ini
     # change file rights
     echo "> Change the owenership of $CW_HOME/app/config.ini to $PUSER:$PGROUP"
     chown $PUSER:$PGROUP $CW_HOME/app/config.ini
@@ -42,8 +42,8 @@ if [ ! -f $CW_HOME/app/config.ini ]; then
 fi
 
 # check if the specified books volume is correct
-if [ ! -f $SYNO_HOME/books/metadata.db ]; then
-    echo "[ERROR] The mapped volume for $SYNO_HOME/books doesn't contain a Calibre database file 'metadata.db'"
+if [ ! -f $CALIBRE_PATH/metadata.db ]; then
+    echo "[ERROR] The mapped volume for $CALIBRE_PATH doesn't contain a Calibre database file 'metadata.db'"
     echo "> Please fix the volume mapping before you retry to start the container again"
     echo "> Stopping the container with errorlevel 1"
     exit 1

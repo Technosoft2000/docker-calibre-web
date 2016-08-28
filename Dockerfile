@@ -42,7 +42,7 @@ ENV \
     SYNO_VOLUME="/volume1" \
 
     # - CALIBRE_PATH: Configure the path where the Calibre database is located
-    CALIBRE_PATH="$SYNO_VOLUME/books"
+    CALIBRE_PATH="/volume1/books"
 	
 RUN \
     # update the package list
