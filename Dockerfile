@@ -1,112 +1,89 @@
-FROM alpine:3.4
-MAINTAINER Technosoft2000 <technosoft2000@gmx.net> 
+FROM technosoft2000/alpine-base:3.5-1.0.0
+MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
+LABEL image.version="1.0.0" \
+      image.description="Docker image for Calibre Web, based on docker image of Alpine" \
+      image.date="2017-03-11" \
+      url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
+      url.github="https://github.com/Technosoft2000/docker-calibre-web" \
+      url.support="https://cytec.us/forum"
 
 # Set basic environment settings
-
 ENV \
-    # - TERM: The name of a terminal information file from /lib/terminfo, 
-    # this file instructs terminal programs how to achieve things such as displaying color.
-    TERM="xterm" \
-
-    # - LANG, LANGUAGE, LC_ALL: language dependent settings (Default: de_DE.UTF-8)
-    LANG="de_DE.UTF-8" \
-    LANGUAGE="de_DE:de" \
-    LC_ALL="de_DE.UTF-8" \
-
-    # - PKG_*: the needed applications for installation
-    GOSU_VERSION="1.9" \
-    PKG_BASE="bash tzdata git" \
-    PKG_DEV="make gcc g++ python-dev openssl-dev libffi-dev" \
-    PKG_PYTHON="ca-certificates py-pip python py-libxml2 py-lxml" \
-    PKG_IMAGES="imagemagick" \
+    # - VERSION: the docker image version (corresponds to the above LABEL image.version)
+    VERSION="1.0.0" \
     
-    # - SET_CONTAINER_TIMEZONE: set this environment variable to true to set timezone on container startup
-    SET_CONTAINER_TIMEZONE="false" \
+    # - PUSER, PGROUP: the APP user and group name
+    PUSER="calibre" \
+	PGROUP="calibre" \
 
-    # - CONTAINER_TIMEZONE: UTC, Default container timezone as found under the directory /usr/share/zoneinfo/
-    CONTAINER_TIMEZONE="UTC" \
+    # - APP_NAME: the APP name
+    APP_NAME="Calibre-Web" \
 
-    # - CW_HOME: Calibre Web Home directory
-    CW_HOME="/calibre-web" \
+    # - APP_HOME: the APP home directory
+    APP_HOME="/calibre-web" \
 
-    # - CW_REPO, CW_BRANCH: Calibre Web GitHub repository and related branch
-    CW_REPO="https://github.com/janeczku/calibre-web.git" \
-    CW_BRANCH="master" \
+    # - APP_REPO, APP_BRANCH: the APP GitHub repository and related branch
+    # for related branch or tag use e.g. master
+    APP_REPO="https://github.com/janeczku/calibre-web.git" \
+    APP_BRANCH="master" \
 
-    # - AMAZON_KINDLEGEN: KindleGen is a command line tool which enables publishers to work 
-    #   in an automated environment with a variety of source content including HTML, XHTML or EPUB
+    # - AMAZON_KG_*: KindleGen is a command line tool which enables publishers to work 
+    # in an automated environment with a variety of source content including HTML, XHTML or EPUB
     AMAZON_KG_TAR="kindlegen_linux_2.6_i386_v2_9.tar.gz" \
     AMAZON_KG_URL="http://kindlegen.s3.amazonaws.com/kindlegen_linux_2.6_i386_v2_9.tar.gz" \
 
-    # - SYNO_VOLUME: Snyology NAS volume main directory
-    SYNO_VOLUME="/volume1" \
-
     # - CALIBRE_PATH: Configure the path where the Calibre database is located
-    CALIBRE_PATH="/volume1/books"
+    CALIBRE_PATH="/books" \
 	
+    # - PKG_*: the needed applications for installation
+    PKG_DEV="make gcc g++ python-dev openssl-dev libffi-dev" \
+    PKG_PYTHON="ca-certificates py-pip python py-libxml2 py-lxml" \
+    PKG_IMAGES="imagemagick"
+
 RUN \
+    # create temporary directories
+    mkdir -p /tmp && \
+    mkdir -p /var/cache/apk && \
+
     # update the package list
     apk -U upgrade && \
 
-    # install gosu from https://github.com/tianon/gosu
-    set -x \
-    && apk add --no-cache --virtual .gosu-deps \
-        dpkg \
-        gnupg \
-        openssl \
-    && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
-    && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" \
-    && wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" \
-    && export GNUPGHOME="$(mktemp -d)" \
-    && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
-    && gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
-    && rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc \
-    && chmod +x /usr/local/bin/gosu \
-    && gosu nobody true \
-    && apk del .gosu-deps \
-    && \
-
     # install the needed applications
-    apk -U add --no-cache $PKG_BASE $PKG_DEV $PKG_PYTHON $PKG_IMAGES && \
+    apk -U add --no-cache $PKG_DEV $PKG_PYTHON $PKG_IMAGES && \
 
     # install additional python packages:
-    # setuptools, pyopenssl, gunicorn, wand 
+    # setuptools, pyopenssl, gunicorn, wand
+    pip --no-cache-dir install --upgrade pip && \
     pip --no-cache-dir install --upgrade setuptools && \
-    pip --no-cache-dir install --upgrade pyopenssl gunicorn wand && \
+    pip --no-cache-dir install --upgrade pyopenssl babel && \
+    pip --no-cache-dir install --upgrade flask flask-babel flask-login flask-principal && \
+    pip --no-cache-dir install --upgrade iso-639 pypdf2 pytz requests && \
+    pip --no-cache-dir install --upgrade sqlalchemy tornado wand && \
 
     # remove not needed packages
     apk del $PKG_DEV && \
 
-    # create Snyology NAS /volume1 folders 
-    # to easily provide the same corresponding host directories at Calibre Web
-    mkdir -p $SYNO_VOLUME/books && \
-    mkdir -p $SYNO_VOLUME/certificates && \
-
     # create Calibre Web folder structure
-    mkdir -p $CW_HOME/app && \
+    mkdir -p $APP_HOME/app && \
 
     # download and install KindleGen
-    mkdir -p $CW_HOME/kindlegen && \
+    mkdir -p $APP_HOME/kindlegen && \
     wget $AMAZON_KG_URL -P /tmp && \
-    tar -xzf /tmp/$AMAZON_KG_TAR -C $CW_HOME/kindlegen && \
+    tar -xzf /tmp/$AMAZON_KG_TAR -C $APP_HOME/kindlegen && \
 
     # cleanup temporary files
     rm -rf /tmp && \
     rm -rf /var/cache/apk/*
 
-# set the working directory for Calibre Web
-WORKDIR $CW_HOME/app
+# set the working directory for the APP
+WORKDIR $APP_HOME/app
 
-#start.sh will download the latest version of Calibre Web and run it.
-COPY *.txt $CW_HOME/
-COPY *.sh $CW_HOME/
-RUN chmod u+x $CW_HOME/start.sh
+# copy files to the image (info.txt and scripts)
+COPY *.txt /init/
+COPY *.sh /init/
 
 # Set volumes for the Calibre Web folder structure
-VOLUME $SYNO_VOLUME/books $SYNO_VOLUME/certificates
+VOLUME /books
 
 # Expose ports
 EXPOSE 8083
-
-# Start Calibre Web
-CMD ["/bin/bash", "-c", "$CW_HOME/start.sh"]
