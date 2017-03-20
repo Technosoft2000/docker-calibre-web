@@ -34,6 +34,10 @@ If you want to know more you can head over to the Calibre Web project site: http
 
 ## Updates ##
 
+**2017-03-20 - v1.1.0**
+ * added the optional Google Drive integration
+ * added creation of app.db symlink at /books/app.db for external access like backup possibility
+
 **2017-03-11 - v1.0.0**
  * calibre-web image is based now on ```technosoft2000/alpine-base:3.5-1.0.0```
  * updated Dockerfile to the latest state needed to run Calibre Web (Latest commit dbf07cb) correctly
