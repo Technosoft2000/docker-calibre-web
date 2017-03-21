@@ -34,6 +34,9 @@ If you want to know more you can head over to the Calibre Web project site: http
 
 ## Updates ##
 
+**2017-03-21 - v1.1.1**
+ * added creation of gdrive.db symlink at /books/gdrive.db for external access like backup possibility
+
 **2017-03-20 - v1.1.0**
  * added the optional Google Drive integration
  * added creation of app.db symlink at /books/app.db for external access like backup possibility
