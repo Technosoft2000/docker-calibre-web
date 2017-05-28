@@ -6,6 +6,9 @@
 # see at https://github.com/janeczku/calibre-web/
 source /init/checkout.sh "$APP_NAME" "$APP_BRANCH" "$APP_REPO" "$APP_HOME/app"
 
+# create symlink for kindlegen (Amazon Kindle Generator)
+ln -s $APP_HOME/kindlegen/kindlegen $APP_HOME/app/vendor/kindlegen
+
 # create symlinks for the app databases
 ln -s /books/app.db "$APP_HOME/app/app.db"
 ln -s /books/gdrive.db "$APP_HOME/app/gdrive.db"

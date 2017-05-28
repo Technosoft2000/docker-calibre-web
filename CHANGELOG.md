@@ -1,6 +1,9 @@
 **2017-05-28 - v1.1.2**
 
  * upgrade to __Alpine 3.6__ (new base image [technosoft2000/alpine-base:3.6-1](https://hub.docker.com/r/technosoft2000/alpine-base/))
+ * fixed an issue with kindlegen - missing executable in the `vendor` directory
+ * added the environment variable `MAGICK_HOME` - defines the ImageMagick home especially for Wand
+ * added dependencies `imagemagick-doc` and `imagemagick-dev`
 
 **2017-03-21 - v1.1.1**
 

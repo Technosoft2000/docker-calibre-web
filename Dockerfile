@@ -38,7 +38,13 @@ ENV \
     # - PKG_*: the needed applications for installation
     PKG_DEV="make gcc g++ python-dev openssl-dev libffi-dev libxml2-dev libxslt-dev" \
     PKG_PYTHON="ca-certificates py-pip python py-libxml2 py-libxslt py-lxml libev" \
-    PKG_IMAGES="imagemagick"
+    PKG_IMAGES="imagemagick imagemagick-doc imagemagick-dev" \
+
+    # - MAGICK_HOME: the ImageMagick home especially for Wand
+    # see at: http://docs.wand-py.org/en/0.4.4/guide/install.html#explicit-link
+    # see at: http://docs.wand-py.org/en/0.4.4/wand/version.html
+    # see at: http://e-mats.org/2017/04/imagemagick-magickwand-under-alphine-linux-python-alpine/
+    MAGICK_HOME="/usr"
 
 RUN \
     # create temporary directories
@@ -71,7 +77,7 @@ RUN \
     # create Calibre Web folder structure
     mkdir -p $APP_HOME/app && \
 
-    # download and install KindleGen
+    # download and install kindlegen (Amazon Kindle Generator)
     mkdir -p $APP_HOME/kindlegen && \
     wget $AMAZON_KG_URL -P /tmp && \
     tar -xzf /tmp/$AMAZON_KG_TAR -C $APP_HOME/kindlegen && \
