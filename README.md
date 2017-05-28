@@ -7,7 +7,9 @@
 
 ## Calibre Web - Manage your Calibre e-book collection ##
 
-Calibre Web is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
+[Calibre Web](https://github.com/janeczku/calibre-web) is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
+
+![screenshot](https://raw.githubusercontent.com/janeczku/docker-calibre-web/master/screenshot.png)
 
 Calibre Web comes with the following features:
 
@@ -34,21 +36,21 @@ If you want to know more you can head over to the Calibre Web project site: http
 
 ## Updates ##
 
-**2017-03-21 - v1.1.1**
- * added creation of gdrive.db symlink at /books/gdrive.db for external access like backup possibility
+**2017-05-28 - v1.1.2**
 
-**2017-03-20 - v1.1.0**
- * added the optional Google Drive integration
- * added creation of app.db symlink at /books/app.db for external access like backup possibility
+ * upgrade to __Alpine 3.6__ (new base image [technosoft2000/alpine-base:3.6-1](https://hub.docker.com/r/technosoft2000/alpine-base/))
 
-**2017-03-11 - v1.0.0**
- * calibre-web image is based now on ```technosoft2000/alpine-base:3.5-1.0.0```
- * updated Dockerfile to the latest state needed to run Calibre Web (Latest commit dbf07cb) correctly
+For previous changes see at [full changelog](CHANGELOG.md).
 
 ## Features ##
 
  * running Calibre Web under its own user (not root)
  * changing of the UID and GID for the Calibre Web user
+ * no usage of NGINX inside the container, only the Calibre Web application is served as single application without any supervisor
+ * __HINT:__ if you need SSL support similiar to the original Docker Container [janeczku/calibre-web](https://hub.docker.com/r/janeczku/calibre-web/) then use an additional NGINX or Apache HTTP Server as Reverse-Proxy, e.g see [jwilder/nginx-proxy](https://hub.docker.com/r/jwilder/nginx-proxy/)
+ * Google Drive integration is included
+ * creation of gdrive.db symlink at `/books/gdrive.db` for external access like backup possibility
+ * creation of app.db symlink at `/books/app.db` for external access like backup possibility
 
 ## Configuration at first launch ''
  1. Point your browser to `http://hostname:<HTTP PORT>` e.g. `http://hostname:8083`
@@ -247,31 +249,31 @@ docker logs -f calibre-web
       
       ~~~~~         Calibre Web       ~~~~~
                                            
-[INFO] Docker image version: 1.0.0
+[INFO] Docker image version: 1.1.2
 [INFO] Create group calibre with id 65539
 [INFO] Create user calibre with id 1029
 [INFO] Current active timezone is UTC
-Sat Mar 11 20:39:00 CET 2017
+Sun May 28 16:57:05 CEST 2017
 [INFO] Container timezone is changed to: Europe/Vienna
 [INFO] Change the ownership of /calibre-web (including subfolders) to calibre:calibre
 [INFO] Current git version is:
-git version 2.11.1
+git version 2.13.0
 [INFO] Checkout the latest Calibre-Web version ...
 [INFO] ... git clone -b master --single-branch https://github.com/janeczku/calibre-web.git /calibre-web/app -v
 Cloning into '/calibre-web/app'...
-POST git-upload-pack (165 bytes)
+POST git-upload-pack (189 bytes)
 [INFO] Autoupdate is active, try to pull the latest sources for Calibre-Web ...
 [INFO] ... current git status is
 On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working tree clean
-dbf07cb593ef29b733b74aaf3abb2b412e7516ac
+e6c6c26fd1ec363c3065f03c388a5d628ed6331e
 [INFO] ... pulling sources
 Already up-to-date.
 [INFO] ... git status after update is
 On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working tree clean
-dbf07cb593ef29b733b74aaf3abb2b412e7516ac
+e6c6c26fd1ec363c3065f03c388a5d628ed6331e
 [INFO] Launching Calibre-Web ...
 ```
