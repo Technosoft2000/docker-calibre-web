@@ -36,12 +36,11 @@ If you want to know more you can head over to the Calibre Web project site: http
 
 ## Updates ##
 
-**2017-05-28 - v1.1.2**
+**2017-06-03 - v1.1.3**
 
- * upgrade to __Alpine 3.6__ (new base image [technosoft2000/alpine-base:3.6-1](https://hub.docker.com/r/technosoft2000/alpine-base/))
- * fixed an issue with kindlegen - missing executable in the `vendor` directory
- * added the environment variable `MAGICK_HOME` - defines the ImageMagick home especially for Wand
- * added dependencies `imagemagick-doc` and `imagemagick-dev`
+ * new base image [technosoft2000/alpine-base:3.6-2](https://hub.docker.com/r/technosoft2000/alpine-base/))
+ * new version allows now usage of group id's __PGID__ < 1000
+ * added check of write permissions at `/books` to know if symlinks can be created
 
 For previous changes see at [full changelog](CHANGELOG.md).
 
@@ -50,10 +49,16 @@ For previous changes see at [full changelog](CHANGELOG.md).
  * running Calibre Web under its own user (not root)
  * changing of the UID and GID for the Calibre Web user
  * no usage of NGINX inside the container, only the Calibre Web application is served as single application without any supervisor
- * __HINT:__ if you need SSL support similiar to the original Docker Container [janeczku/calibre-web](https://hub.docker.com/r/janeczku/calibre-web/) then use an additional NGINX or Apache HTTP Server as Reverse-Proxy, e.g see [jwilder/nginx-proxy](https://hub.docker.com/r/jwilder/nginx-proxy/)
  * Google Drive integration is included
  * creation of gdrive.db symlink at `/books/gdrive.db` for external access like backup possibility
  * creation of app.db symlink at `/books/app.db` for external access like backup possibility
+
+## Hints & Tips ##
+ 
+ * if you need SSL support similiar to the original Docker Container [janeczku/calibre-web](https://hub.docker.com/r/janeczku/calibre-web/) then use an additional NGINX or Apache HTTP Server as Reverse-Proxy, e.g see [jwilder/nginx-proxy](https://hub.docker.com/r/jwilder/nginx-proxy/)
+ * if you don't specify __PGID__ and __PUID__ values the default __PGID__ and __PUID__ of the image are used,
+and if they are used then the mapped host volume/directory which is alligned to `/books` must have _read-write-execute_ permission for **_others_** , otherwise the configuration of Calibre-Web can't be finished :-|
+ * for Synology Users - don't map a top-level volume directory from the NAS as `/books` volume, e.g. `/volume1/books` because it results into problems with directory permissons. Create instead a subdirectory __calibre__ at `/volume1/books` and map then `/volume1/books/calibre` as volume for `/books`
 
 ## Configuration at first launch ''
  1. Point your browser to `http://hostname:<HTTP PORT>` e.g. `http://hostname:8083`
@@ -89,7 +94,7 @@ __Example:__
 
 ```
 docker create --name=calibre-web --restart=always \
--v /volume1/books:/books \
+-v /volume1/books/calibre:/books \
 -v /etc/localtime:/etc/localtime:ro \
 -e PGID=65539 -e PUID=1029 \
 -p 8083:8083 \
@@ -100,7 +105,7 @@ or
 
 ```
 docker create --name=calibre-web --restart=always \
--v /volume1/books:/books \
+-v /volume1/books/calibre:/books \
 -e SET_CONTAINER_TIMEZONE=true \
 -e CONTAINER_TIMEZONE=Europe/Vienna \
 -e PGID=65539 -e PUID=1029 \
@@ -208,7 +213,7 @@ docker pull technosoft2000/calibre-web
 * create a Docker container (take care regarding the user ID and group ID, change timezone and port as needed)
 ```
 docker create --name=calibre-web --restart=always \
--v /volume1/books:/books \
+-v /volume1/books/calibre:/books \
 -e SET_CONTAINER_TIMEZONE=true \
 -e CONTAINER_TIMEZONE=Europe/Vienna \
 -e PGID=65539 -e PUID=1029 \
@@ -252,11 +257,13 @@ docker logs -f calibre-web
       
       ~~~~~         Calibre Web       ~~~~~
                                            
-[INFO] Docker image version: 1.1.2
-[INFO] Create group calibre with id 65539
+[INFO] Docker image version: 1.1.3
+[INFO] Alpine Linux version: 3.6.0
+[WARNING] A group with id 100 exists already [in use by users] and will be modified.
+[WARNING] The group users will be renamed to calibre
 [INFO] Create user calibre with id 1029
 [INFO] Current active timezone is UTC
-Sun May 28 16:57:05 CEST 2017
+Sat Jun  3 16:18:19 CEST 2017
 [INFO] Container timezone is changed to: Europe/Vienna
 [INFO] Change the ownership of /calibre-web (including subfolders) to calibre:calibre
 [INFO] Current git version is:
@@ -278,5 +285,7 @@ On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working tree clean
 e6c6c26fd1ec363c3065f03c388a5d628ed6331e
+[INFO] Everyone has write access at /books
+[INFO] app.db and gdrive.db will be linked into /books
 [INFO] Launching Calibre-Web ...
 ```
