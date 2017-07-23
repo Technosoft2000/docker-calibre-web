@@ -1,3 +1,8 @@
+**2017-07-23 - v1.1.4**
+
+ * fixed issue #5 - Unable to create /tmp/Mobi
+ * fixed issue #6 - Not possible for symlinks to be created
+
 **2017-06-03 - v1.1.3**
 
  * new base image [technosoft2000/alpine-base:3.6-2](https://hub.docker.com/r/technosoft2000/alpine-base/))

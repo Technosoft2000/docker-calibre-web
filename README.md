@@ -36,11 +36,10 @@ If you want to know more you can head over to the Calibre Web project site: http
 
 ## Updates ##
 
-**2017-06-03 - v1.1.3**
+**2017-07-23 - v1.1.4**
 
- * new base image [technosoft2000/alpine-base:3.6-2](https://hub.docker.com/r/technosoft2000/alpine-base/))
- * new version allows now usage of group id's __PGID__ < 1000
- * added check of write permissions at `/books` to know if symlinks can be created
+ * fixed issue #5 - Unable to create /tmp/Mobi
+ * fixed issue #6 - Not possible for symlinks to be created
 
 For previous changes see at [full changelog](CHANGELOG.md).
 
