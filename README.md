@@ -38,7 +38,7 @@ If you want to know more you can head over to the Calibre Web project site: http
 
 **2017-07-23 - v1.1.5**
 
- * fixed issue #7 - [BUG] In version 1.1.4 /books folder doesn't have write access
+ * fixed issue #9 - [BUG] In version 1.1.4 /books folder doesn't have write access
  * enhanced user permisson check to use UID in addition to username; 
    successfully tested with /books permissons 770, 755, 700 
  * added additional output at permission checks
