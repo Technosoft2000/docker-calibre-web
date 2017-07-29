@@ -36,13 +36,13 @@ If you want to know more you can head over to the Calibre Web project site: http
 
 ## Updates ##
 
-**2017-07-29 - v1.1.5**
+**2017-07-29 - v1.1.6**
 
- * fixed issue #9 - [BUG] In version 1.1.4 /books folder doesn't have write access
- * enhanced user permisson check to use UID in addition to username; 
-   successfully tested with /books permissons 770, 755, 700 
- * added additional output at permission checks
- * enhanced check of symlinks like app.db, gdrive.db, ...
+ * fixed issue with ImageMagick and Wand - the error 'You probably had not installed ImageMagick library.' was shown at `calibre-web.log`;
+   Alpine 3.6 delivers already ImageMagick 7 which isn't supported by Wand yet, due this ImageMagick 6 has to be compiled from source.
+   See also at https://github.com/dahlia/wand/issues/287
+ * loading of book metadata works now too because of the ImageMagick fix
+ * updated README.MD with information how to detect image version and how to monitor `calibre-web.log`
 
 For previous changes see at [full changelog](CHANGELOG.md).
 
@@ -74,7 +74,7 @@ Default admin login:
 
 After successful login change the default password and set the email adress.
 
-To access the OPDS catalog feed, point your Ebook Reader to http://hostname:8080/opds
+To access the OPDS catalog feed, point your Ebook Reader to `http://hostname:<HTTP PORT>/opds`
 
 ## Usage ##
 
@@ -173,6 +173,12 @@ Upgrade to the latest version of Calibre Web: `docker restart calibre-web`
 
 To monitor the logs of the container in realtime: `docker logs -f calibre-web`
 
+To monitor the logs of Calibre Web: `docker exec -it calibre-web tail -f /calibre-web/app/calibre-web.log`
+
+Show used base image version number of Calibre Web: `docker inspect -f '{{ index .Config.Labels "image.base.version" }}' calibre-web`
+
+Show used image version number of Calibre Web: `docker inspect -f '{{ index .Config.Labels "image.version" }}' calibre-web`
+
 ---
 
 ## For Synology NAS users ##
@@ -259,13 +265,13 @@ docker logs -f calibre-web
       
       ~~~~~         Calibre Web       ~~~~~
                                            
-[INFO] Docker image version: 1.1.3
+[INFO] Docker image version: 1.1.6
 [INFO] Alpine Linux version: 3.6.0
 [WARNING] A group with id 100 exists already [in use by users] and will be modified.
 [WARNING] The group users will be renamed to calibre
 [INFO] Create user calibre with id 1029
 [INFO] Current active timezone is UTC
-Sat Jun  3 16:18:19 CEST 2017
+Sat Jul 29 20:26:13 CEST 2017
 [INFO] Container timezone is changed to: Europe/Vienna
 [INFO] Change the ownership of /calibre-web (including subfolders) to calibre:calibre
 [INFO] Current git version is:
@@ -279,15 +285,30 @@ POST git-upload-pack (189 bytes)
 On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working tree clean
-e6c6c26fd1ec363c3065f03c388a5d628ed6331e
+0afc8f94da4f89f57a7dd098d97c2f4f83a0d723
 [INFO] ... pulling sources
 Already up-to-date.
 [INFO] ... git status after update is
 On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working tree clean
-e6c6c26fd1ec363c3065f03c388a5d628ed6331e
-[INFO] Everyone has write access at /books
+0afc8f94da4f89f57a7dd098d97c2f4f83a0d723
+[INFO] kindlegen (Amazon Kindle Generator) will be linked into /calibre-web/app/vendor
+> create kindlegen link /calibre-web/app/vendor/kindlegen assigned to source /calibre-web/kindlegen/kindlegen
+[INFO] Checking permissions of /books
+> Output is: 770 calibre 100 UNKNOWN 1026
+> Permissions: 770
+> Assigned group: calibre
+> Assigned group ID: 100
+> Assigned owner: UNKNOWN
+> Assigned owner ID: 1026
+> Using permissions for checks: 0770
+> Check if the group calibre has write access at /books
+> The group calibre has write access at /books
 [INFO] app.db and gdrive.db will be linked into /books
+> create app.db link /calibre-web/app/app.db assigned to source /books/app.db
+> create gdrive.db link /calibre-web/app/gdrive.db assigned to source /books/gdrive.db
+[INFO] Creating directory for temporary directories and files: /tmp
+[INFO] Change the ownership of /tmp (including subfolders) to calibre:calibre
 [INFO] Launching Calibre-Web ...
 ```

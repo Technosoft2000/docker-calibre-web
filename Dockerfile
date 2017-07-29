@@ -1,6 +1,6 @@
 FROM technosoft2000/alpine-base:3.6-2
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.1.5" \
+LABEL image.version="1.1.6" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
       image.date="2017-07-29" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
@@ -10,7 +10,7 @@ LABEL image.version="1.1.5" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.1.5" \
+    VERSION="1.1.6" \
     
     # - PUSER, PGROUP: the APP user and group name
     PUSER="calibre" \
@@ -38,11 +38,17 @@ ENV \
     # - PKG_*: the needed applications for installation
     PKG_DEV="make gcc g++ python-dev openssl-dev libffi-dev libxml2-dev libxslt-dev" \
     PKG_PYTHON="ca-certificates py-pip python py-libxml2 py-libxslt py-lxml libev" \
-    PKG_IMAGES="imagemagick imagemagick-doc imagemagick-dev" \
+    # WARNING: Wand supports only ImageMagick 6 at the moment and Alpine delivers already ImageMagick 7
+    # PKG_IMAGES="imagemagick imagemagick-doc imagemagick-dev" \
+    # need to build ImageMagick 6 from source
+    PKG_IMAGES_DEV="curl file fontconfig-dev freetype-dev ghostscript-dev lcms2-dev \
+    libjpeg-turbo-dev libpng-dev libtool libwebp-dev perl-dev tiff-dev xz zlib-dev" \
+    PKG_IMAGES="fontconfig freetype ghostscript lcms2 libjpeg-turbo libltdl libpng \
+	libwebp libxml2 tiff zlib" \
 
     # - MAGICK_HOME: the ImageMagick home especially for Wand
-    # see at: http://docs.wand-py.org/en/0.4.4/guide/install.html#explicit-link
-    # see at: http://docs.wand-py.org/en/0.4.4/wand/version.html
+    # see at: http://docs.wand-py.org/en/latest/guide/install.html#explicit-link
+    # see at: http://docs.wand-py.org/en/latest/wand/version.html
     # see at: http://e-mats.org/2017/04/imagemagick-magickwand-under-alphine-linux-python-alpine/
     MAGICK_HOME="/usr"
 
@@ -55,7 +61,7 @@ RUN \
     apk -U upgrade && \
 
     # install the needed applications
-    apk -U add --no-cache $PKG_DEV $PKG_PYTHON $PKG_IMAGES && \
+    apk -U add --no-cache $PKG_DEV $PKG_PYTHON $PKG_IMAGES_DEV $PKG_IMAGES && \
 
     # install additional python packages:
     ### REQUIRED ###
@@ -71,8 +77,50 @@ RUN \
     pip --no-cache-dir install --upgrade pyasn1-modules pyasn1 pydrive pyyaml && \
     pip --no-cache-dir install --upgrade rsa six uritemplate && \
 
+    # get actual ImageMagic 6 version info
+    IMAGEMAGICK_VER=$(curl --silent http://www.imagemagick.org/download/digest.rdf \
+	| grep ImageMagick-6.*tar.xz | sed 's/\(.*\).tar.*/\1/' | sed 's/^.*ImageMagick-/ImageMagick-/') && \
+
+    # create temporary build directory for ImageMagic
+    mkdir -p /tmp/imagemagick && \
+
+    # download ImageMagic
+    curl -o /tmp/imagemagick-src.tar.xz -L "http://www.imagemagick.org/download/${IMAGEMAGICK_VER}.tar.xz" && \
+
+    # unpack ImageMagic
+    tar xf /tmp/imagemagick-src.tar.xz -C /tmp/imagemagick --strip-components=1 && \
+
+    # configure ImageMagic
+    cd /tmp/imagemagick && \
+
+    sed -i -e \
+	's:DOCUMENTATION_PATH="${DATA_DIR}/doc/${DOCUMENTATION_RELATIVE_PATH}":DOCUMENTATION_PATH="/usr/share/doc/imagemagick":g' \
+	configure && \
+
+    ./configure \
+	  --infodir=/usr/share/info \
+	  --mandir=/usr/share/man \
+	  --prefix=/usr \
+	  --sysconfdir=/etc \
+	  --with-gs-font-dir=/usr/share/fonts/Type1 \
+	  --with-gslib \
+	  --with-lcms2 \
+	  --with-modules \
+	  --without-threads \
+	  --without-x \
+	  --with-tiff \
+	  --with-xml && \
+
+    # compile ImageMagic
+    make && \
+
+    # install ImageMagic
+    make install && \
+    find / -name '.packlist' -o -name 'perllocal.pod' -o -name '*.bs' -delete && \
+
     # remove not needed packages
-    apk del $PKG_DEV && \
+    apk del --purge $PKG_DEV \
+                    $PKG_IMAGES_DEV && \
 
     # create Calibre Web folder structure
     mkdir -p $APP_HOME/app && \

@@ -1,3 +1,11 @@
+**2017-07-29 - v1.1.6**
+
+ * fixed issue with ImageMagick and Wand - the error 'You probably had not installed ImageMagick library.' was shown at `calibre-web.log`;
+   Alpine 3.6 delivers already ImageMagick 7 which isn't supported by Wand yet, due this ImageMagick 6 has to be compiled from source.
+   See also at https://github.com/dahlia/wand/issues/287
+ * loading of book metadata works now too because of the ImageMagick fix
+ * updated README.MD with information how to detect image version and how to monitor `calibre-web.log`
+
 **2017-07-29 - v1.1.5**
 
  * fixed issue #9 - [BUG] In version 1.1.4 /books folder doesn't have write access
