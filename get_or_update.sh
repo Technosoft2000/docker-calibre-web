@@ -7,7 +7,15 @@
 source /init/checkout.sh "$APP_NAME" "$APP_BRANCH" "$APP_REPO" "$APP_HOME/app"
 
 # create symlink for kindlegen (Amazon Kindle Generator)
-ln -s $APP_HOME/kindlegen/kindlegen $APP_HOME/app/vendor/kindlegen
+echo "[INFO] kindlegen (Amazon Kindle Generator) will be linked into $APP_HOME/app/vendor"
+KINDLEGEN_SRC="$APP_HOME/kindlegen/kindlegen"
+KINDLEGEN_LINK="$APP_HOME/app/vendor/kindlegen"
+if [[ -L "$KINDLEGEN_LINK" &&  -e "$KINDLEGEN_LINK" ]]; then
+	echo "> kindlegen link $KINDLEGEN_LINK exists already and won't be recreated"
+else
+	echo "> create kindlegen link $KINDLEGEN_LINK assigned to source $KINDLEGEN_SRC"
+	ln -s $KINDLEGEN_SRC $KINDLEGEN_LINK
+fi
 
 # create symlinks for the app databases
 # Use -L to get information about the target of a symlink,
@@ -15,8 +23,8 @@ ln -s $APP_HOME/kindlegen/kindlegen $APP_HOME/app/vendor/kindlegen
 DIR=/books
 echo "[INFO] Checking permissions of $DIR"
 
-echo "> Output is: $(stat -L -c "%a %G %U" $DIR)"
-INFO=( $(stat -L -c "%a %G %U" $DIR) )
+echo "> Output is: $(stat -L -c "%a %G %g %U %u" $DIR)"
+INFO=( $(stat -L -c "%a %G %g %U %u" $DIR) )
 
 PERM=${INFO[0]}
 echo "> Permissions: $PERM"
@@ -24,16 +32,22 @@ echo "> Permissions: $PERM"
 GROUP=${INFO[1]}
 echo "> Assigned group: $GROUP"
 
-OWNER=${INFO[2]}
+GROUP_GID=${INFO[2]}
+echo "> Assigned group ID: $GROUP_GID"
+
+OWNER=${INFO[3]}
 echo "> Assigned owner: $OWNER"
+
+OWNER_UID=${INFO[4]}
+echo "> Assigned owner ID: $OWNER_UID"
 
 # get the number of digits of PERM; could be 3 or 4
 PERMLEN=${#PERM}
 if [[ $PERMLEN == 3 ]]; then
     # add a precending zero because otherwise the permission checks doesn't work
     PERM="0$PERM"
-    echo "> Using permissons for checks: $PERM"
 fi
+echo "> Using permissions for checks: $PERM"
 
 ACCESS="no"
 if ((($PERM & 0002) != 0 )); then
@@ -50,21 +64,42 @@ elif ((($PERM & 0020) != 0 )); then
             ACCESS="yes"
             echo "> The group $g has write access at $DIR"
             break
+        else
+            echo "> The group $g has no write access at $DIR"
         fi
     done
-elif ((($PERM & 0200) != 0 )); then 
+elif ((($PERM & 0200) != 0 )); then
     # The owner has write access.
     # Does the user own the file?
-    if [[ $PUSER == $OWNER ]]; then 
+    if [[ $PUSER == $OWNER ]] || [[ $PUID == $OWNER_UID ]]; then
         ACCESS="yes"
-        echo "> The user is the owner and has write access at $DIR"
+        echo "> The user $PUSER:$PUID is the owner and has write access at $DIR"
+	else
+	    echo "> The user $PUSER:$PUID is not the owner has no write access at $DIR"
     fi
 fi
 
 if [[ $ACCESS == "yes" ]]; then
     echo "[INFO] app.db and gdrive.db will be linked into $DIR"
-    ln -s $DIR/app.db "$APP_HOME/app/app.db"
-    ln -s $DIR/gdrive.db "$APP_HOME/app/gdrive.db"
+	
+	APPDB_SRC="$DIR/app.db"
+	APPDB_LINK="$APP_HOME/app/app.db"
+	if [[ -L "$APPDB_LINK" &&  -e "$APPDB_LINK" ]]; then
+        echo "> app.db link $APPDB_LINK exists already and won't be recreated"
+	else
+	    echo "> create app.db link $APPDB_LINK assigned to source $APPDB_SRC"
+	    ln -s $APPDB_SRC $APPDB_LINK
+	fi
+    
+	GDRIVEDB_SRC="$DIR/gdrive.db"
+	GDRIVEDB_LINK="$APP_HOME/app/gdrive.db"
+    if [[ -L "$GDRIVEDB_LINK" && -e "$GDRIVEDB_LINK" ]]; then
+        echo "> gdrive.db link $GDRIVEDB_LINK exists already and won't be recreated"
+	else
+		echo "> create gdrive.db link $GDRIVEDB_LINK assigned to source $GDRIVEDB_SRC"
+		ln -s $GDRIVEDB_SRC $GDRIVEDB_LINK
+	fi
+
 else
     echo "[WARNING] No write access at $DIR - app.db and gdrive.db wont be linked into $DIR"
 fi

@@ -36,10 +36,13 @@ If you want to know more you can head over to the Calibre Web project site: http
 
 ## Updates ##
 
-**2017-07-23 - v1.1.4**
+**2017-07-23 - v1.1.5**
 
- * fixed issue #5 - Unable to create /tmp/Mobi
- * fixed issue #6 - Not possible for symlinks to be created
+ * fixed issue #7 - [BUG] In version 1.1.4 /books folder doesn't have write access
+ * enhanced user permisson check to use UID in addition to username; 
+   successfully tested with /books permissons 770, 755, 700 
+ * added additional output at permission checks
+ * enhanced check of symlinks like app.db, gdrive.db, ...
 
 For previous changes see at [full changelog](CHANGELOG.md).
 
