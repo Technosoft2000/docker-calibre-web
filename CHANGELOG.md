@@ -1,4 +1,4 @@
-**2017-07-23 - v1.1.5**
+**2017-07-29 - v1.1.5**
 
  * fixed issue #9 - [BUG] In version 1.1.4 /books folder doesn't have write access
  * enhanced user permisson check to use UID in addition to username; 
