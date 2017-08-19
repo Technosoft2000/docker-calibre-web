@@ -100,17 +100,17 @@ if [[ $ACCESS == "yes" ]]; then
 		ln -s $GDRIVEDB_SRC $GDRIVEDB_LINK
 	fi
 
+    # check if a Calibre library exists already, otherwise copy initial files
+    if [ ! -f $CALIBRE_PATH/metadata.db ]; then
+        echo "[WARNING] The mapped volume for $CALIBRE_PATH doesn't contain a Calibre database file 'metadata.db'"
+        echo "> Due this an inital Calibre database file 'metadata.db' and 'metadata_db_prefs_backup.json' will be copied to $CALIBRE_PATH"
+        cp /init/calibre-init/* $CALIBRE_PATH
+        chown $PUSER:$PGROUP $CALIBRE_PATH/metadata.db
+        chown $PUSER:$PGROUP $CALIBRE_PATH/metadata_db_prefs_backup.json
+    fi
+
 else
     echo "[WARNING] No write access at $DIR - app.db and gdrive.db wont be linked into $DIR"
-fi
-
-# check if the specified books volume is correct
-if [ ! -f $CALIBRE_PATH/metadata.db ]; then
-    echo "[WARNING] The mapped volume for $CALIBRE_PATH doesn't contain a Calibre database file 'metadata.db'"
-    echo "> Due this an inital Calibre database file 'metadata.db' and 'metadata_db_prefs_backup.json' will be copied to $CALIBRE_PATH"
-    cp /init/calibre-init/* $CALIBRE_PATH
-    chown $PUSER:$PGROUP $CALIBRE_PATH/metadata.db
-    chown $PUSER:$PGROUP $CALIBRE_PATH/metadata_db_prefs_backup.json
 fi
 
 # check if a /tmp directory is available, if not create one
