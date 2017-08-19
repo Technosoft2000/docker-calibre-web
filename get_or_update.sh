@@ -106,10 +106,11 @@ fi
 
 # check if the specified books volume is correct
 if [ ! -f $CALIBRE_PATH/metadata.db ]; then
-    echo "[ERROR] The mapped volume for $CALIBRE_PATH doesn't contain a Calibre database file 'metadata.db'"
-    echo "> Please fix the volume mapping before you retry to start the container again"
-    echo "> Stopping the container with errorlevel 1"
-    exit 1
+    echo "[WARNING] The mapped volume for $CALIBRE_PATH doesn't contain a Calibre database file 'metadata.db'"
+    echo "> Due this an inital Calibre database file 'metadata.db' and 'metadata_db_prefs_backup.json' will be copied to $CALIBRE_PATH"
+    cp /init/calibre-init/* $CALIBRE_PATH
+    chown $PUSER:$PGROUP $CALIBRE_PATH/metadata.db
+    chown $PUSER:$PGROUP $CALIBRE_PATH/metadata_db_prefs_backup.json
 fi
 
 # check if a /tmp directory is available, if not create one

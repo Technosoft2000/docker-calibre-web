@@ -1,8 +1,8 @@
 FROM technosoft2000/alpine-base:3.6-2
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.1.6" \
+LABEL image.version="1.1.7" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2017-07-29" \
+      image.date="2017-08-19" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
@@ -10,7 +10,7 @@ LABEL image.version="1.1.6" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.1.6" \
+    VERSION="1.1.7" \
     
     # - PUSER, PGROUP: the APP user and group name
     PUSER="calibre" \
@@ -65,17 +65,18 @@ RUN \
 
     # install additional python packages:
     ### REQUIRED ###
-    pip --no-cache-dir install --upgrade pip && \
-    pip --no-cache-dir install --upgrade setuptools && \
-    pip --no-cache-dir install --upgrade pyopenssl babel && \
-    pip --no-cache-dir install --upgrade flask flask-babel flask-login flask-principal && \
-    pip --no-cache-dir install --upgrade iso-639 pypdf2 pytz requests && \
-    pip --no-cache-dir install --upgrade sqlalchemy tornado wand && \
+    pip --no-cache-dir install --upgrade \
+      pip setuptools \
+      pyopenssl babel \
+      flask flask-babel flask-login flask-principal \
+      iso-639 pypdf2 pytz requests \
+      sqlalchemy tornado wand unidecode \
     ### OPTIONAL ###
-    pip --no-cache-dir install --upgrade gevent google-api-python-client greenlet && \
-    pip --no-cache-dir install --upgrade httplib2 lxml oauth2client && \
-    pip --no-cache-dir install --upgrade pyasn1-modules pyasn1 pydrive pyyaml && \
-    pip --no-cache-dir install --upgrade rsa six uritemplate && \
+      gevent google-api-python-client greenlet \
+      httplib2 lxml oauth2client \
+      pyasn1-modules pyasn1 pydrive pyyaml \
+      rsa six uritemplate \
+      && \
 
     # get actual ImageMagic 6 version info
     IMAGEMAGICK_VER=$(curl --silent http://www.imagemagick.org/download/digest.rdf \
@@ -140,6 +141,9 @@ WORKDIR $APP_HOME/app
 # copy files to the image (info.txt and scripts)
 COPY *.txt /init/
 COPY *.sh /init/
+
+# copy Calibre related files (e.g. metadata.db)
+COPY calibre-init /init/calibre-init
 
 # Set volumes for the Calibre Web folder structure
 VOLUME /books

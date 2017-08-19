@@ -1,3 +1,10 @@
+**2017-08-19 - v1.1.7**
+
+ * added python library `unidecode` to required dependencys - see also at [janeczku/calibre-web](https://github.com/janeczku/calibre-web) 
+   issue [Transliteration of folders and filenames](https://github.com/janeczku/calibre-web/issues/257)
+ * added initial Calibre `metadata.db` and `metadata_db_prefs_backup.json` 
+   to support the case that the container can be started without an already existing Calibre library - see also at issue #8 __metadata.db__
+
 **2017-07-29 - v1.1.6**
 
  * fixed issue with ImageMagick and Wand - the error 'You probably had not installed ImageMagick library.' was shown at `calibre-web.log`;

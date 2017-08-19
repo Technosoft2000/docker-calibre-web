@@ -7,11 +7,11 @@
 
 ## Calibre Web - Manage your Calibre e-book collection ##
 
-[Calibre Web](https://github.com/janeczku/calibre-web) is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
+[Calibre Web](https://github.com/janeczku/calibre-web) is a web app providing a clean interface for browsing, reading and downloading eBooks using an **existing Calibre database**.
 
 ![screenshot](https://raw.githubusercontent.com/janeczku/docker-calibre-web/master/screenshot.png)
 
-Calibre Web comes with the following features:
+__Calibre Web__ comes with the following features:
 
  * Bootstrap 3 HTML5 interface
  * full graphical setup
@@ -32,17 +32,18 @@ Calibre Web comes with the following features:
  * Fine grained per-user permissions
  * Self update capability
 
-If you want to know more you can head over to the Calibre Web project site: https://github.com/janeczku/calibre-web.
+If you want to know more you can head over to the __Calibre Web__ project site: https://github.com/janeczku/calibre-web.
+
+And if you are interested in the original __Calibre__ ebook management tool then look at the project site: https://calibre-ebook.com/.
 
 ## Updates ##
 
-**2017-07-29 - v1.1.6**
+**2017-08-19 - v1.1.7**
 
- * fixed issue with ImageMagick and Wand - the error 'You probably had not installed ImageMagick library.' was shown at `calibre-web.log`;
-   Alpine 3.6 delivers already ImageMagick 7 which isn't supported by Wand yet, due this ImageMagick 6 has to be compiled from source.
-   See also at https://github.com/dahlia/wand/issues/287
- * loading of book metadata works now too because of the ImageMagick fix
- * updated README.MD with information how to detect image version and how to monitor `calibre-web.log`
+ * added python library `unidecode` to required dependencys - see also at [janeczku/calibre-web](https://github.com/janeczku/calibre-web) 
+   issue [Transliteration of folders and filenames](https://github.com/janeczku/calibre-web/issues/257)
+ * added initial Calibre `metadata.db` and `metadata_db_prefs_backup.json` 
+   to support the case that the container can be started without an already existing Calibre library - see also at issue #8 __metadata.db__
 
 For previous changes see at [full changelog](CHANGELOG.md).
 
@@ -62,7 +63,7 @@ For previous changes see at [full changelog](CHANGELOG.md).
 and if they are used then the mapped host volume/directory which is alligned to `/books` must have _read-write-execute_ permission for **_others_** , otherwise the configuration of Calibre-Web can't be finished :-|
  * for Synology Users - don't map a top-level volume directory from the NAS as `/books` volume, e.g. `/volume1/books` because it results into problems with directory permissons. Create instead a subdirectory __calibre__ at `/volume1/books` and map then `/volume1/books/calibre` as volume for `/books`
 
-## Configuration at first launch ''
+## Configuration at first launch ##
  1. Point your browser to `http://hostname:<HTTP PORT>` e.g. `http://hostname:8083`
  2. Set Location of your Calibre books folder to the path of the folder where you mounted your Calibre folder in the container, which is by default `\books`.
     So enter at the field __Location of Calibre database__ the mapped volume `\books`.
