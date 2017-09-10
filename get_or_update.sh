@@ -7,14 +7,23 @@
 source /init/checkout.sh "$APP_NAME" "$APP_BRANCH" "$APP_REPO" "$APP_HOME/app"
 
 # create symlink for kindlegen (Amazon Kindle Generator)
-echo "[INFO] kindlegen (Amazon Kindle Generator) will be linked into $APP_HOME/app/vendor"
-KINDLEGEN_SRC="$APP_HOME/kindlegen/kindlegen"
-KINDLEGEN_LINK="$APP_HOME/app/vendor/kindlegen"
+KINDLEGEN_DIR="$APP_HOME/kindlegen"
+VENDOR_DIR="$APP_HOME/app/vendor"
+echo "[INFO] kindlegen (Amazon Kindle Generator) will be linked into $VENDOR_DIR"
+KINDLEGEN_SRC="$KINDLEGEN_DIR/kindlegen"
+KINDLEGEN_LINK="$VENDOR_DIR/kindlegen"
 if [[ -L "$KINDLEGEN_LINK" &&  -e "$KINDLEGEN_LINK" ]]; then
 	echo "> kindlegen link $KINDLEGEN_LINK exists already and won't be recreated"
 else
+    # check if vendor directory exists, otherwise create it
+    if [ ! -d "$VENDOR_DIR" ]; then
+        echo "[INFO] Creating the vendor directory: $VENDOR_DIR"
+        mkdir -p $VENDOR_DIR
+        echo "[INFO] Change the ownership of $VENDOR_DIR (including subfolders) to $PUSER:$PGROUP"
+        chown $PUSER:$PGROUP $VENDOR_DIR
+    fi
 	echo "> create kindlegen link $KINDLEGEN_LINK assigned to source $KINDLEGEN_SRC"
-	ln -s $KINDLEGEN_SRC $KINDLEGEN_LINK
+    ln -s $KINDLEGEN_SRC $KINDLEGEN_LINK
 fi
 
 # create symlinks for the app databases

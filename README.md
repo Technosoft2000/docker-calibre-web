@@ -38,12 +38,11 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
-**2017-08-19 - v1.1.7**
+**2017-09-10 - v1.1.8**
 
- * added python library `unidecode` to required dependencys - see also at [janeczku/calibre-web](https://github.com/janeczku/calibre-web) 
-   issue [Transliteration of folders and filenames](https://github.com/janeczku/calibre-web/issues/257)
- * added initial Calibre `metadata.db` and `metadata_db_prefs_backup.json` 
-   to support the case that the container can be started without an already existing Calibre library - see also at issue #8 __metadata.db__
+ * added additional check to proof if the `vendor` directory is available and create it if needed;
+   this bugfix is needed because the default `vendor` directory was removed from the [janeczku/calibre-web](https://github.com/janeczku/calibre-web) sources - see https://github.com/janeczku/calibre-web/commit/b494b6b62af5aaa79d22b3cb80afc5420b6de621
+ * due the above bugfix the `kindlegen` symlink works again and is usable at __Calibre Web__
 
 For previous changes see at [full changelog](CHANGELOG.md).
 
@@ -245,7 +244,6 @@ docker start calibre-web
 * analyze the log (stop it with CTRL+C)
 ```
 docker logs -f calibre-web
-
         ,----,                                   
       ,/   .`|                                   
     ,`   .'  : .--.--.        ,----,        ,-.  
@@ -261,22 +259,19 @@ docker logs -f calibre-web
     '---'      `--'---' |   :    .'   ;  |,'     
                         ;   | .'      '--'       
                         `---'                    
-
-      PRESENTS ANOTHER AWESOME DOCKER IMAGE
-      
-      ~~~~~         Calibre Web       ~~~~~
-                                           
-[INFO] Docker image version: 1.1.6
+      PRESENTS ANOTHER AWESOME DOCKER IMAGE     
+      ~~~~~         Calibre Web       ~~~~~                                           
+[INFO] Docker image version: 1.1.8
 [INFO] Alpine Linux version: 3.6.0
 [WARNING] A group with id 100 exists already [in use by users] and will be modified.
 [WARNING] The group users will be renamed to calibre
 [INFO] Create user calibre with id 1029
 [INFO] Current active timezone is UTC
-Sat Jul 29 20:26:13 CEST 2017
+Sun Sep 10 17:12:13 CEST 2017
 [INFO] Container timezone is changed to: Europe/Vienna
 [INFO] Change the ownership of /calibre-web (including subfolders) to calibre:calibre
 [INFO] Current git version is:
-git version 2.13.0
+git version 2.13.5
 [INFO] Checkout the latest Calibre-Web version ...
 [INFO] ... git clone -b master --single-branch https://github.com/janeczku/calibre-web.git /calibre-web/app -v
 Cloning into '/calibre-web/app'...
@@ -286,26 +281,27 @@ POST git-upload-pack (189 bytes)
 On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working tree clean
-0afc8f94da4f89f57a7dd098d97c2f4f83a0d723
+b6b5313f2d97210f325c6f973cd9ee710021043f
 [INFO] ... pulling sources
 Already up-to-date.
 [INFO] ... git status after update is
 On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working tree clean
-0afc8f94da4f89f57a7dd098d97c2f4f83a0d723
+b6b5313f2d97210f325c6f973cd9ee710021043f
 [INFO] kindlegen (Amazon Kindle Generator) will be linked into /calibre-web/app/vendor
+[INFO] Creating the vendor directory: /calibre-web/app/vendor
+[INFO] Change the ownership of /calibre-web/app/vendor (including subfolders) to calibre:calibre
 > create kindlegen link /calibre-web/app/vendor/kindlegen assigned to source /calibre-web/kindlegen/kindlegen
 [INFO] Checking permissions of /books
-> Output is: 770 calibre 100 UNKNOWN 1026
-> Permissions: 770
+> Output is: 772 calibre 100 UNKNOWN 1026
+> Permissions: 772
 > Assigned group: calibre
 > Assigned group ID: 100
 > Assigned owner: UNKNOWN
 > Assigned owner ID: 1026
-> Using permissions for checks: 0770
-> Check if the group calibre has write access at /books
-> The group calibre has write access at /books
+> Using permissions for checks: 0772
+> Everyone has write access at /books
 [INFO] app.db and gdrive.db will be linked into /books
 > create app.db link /calibre-web/app/app.db assigned to source /books/app.db
 > create gdrive.db link /calibre-web/app/gdrive.db assigned to source /books/gdrive.db

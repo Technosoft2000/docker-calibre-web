@@ -1,3 +1,9 @@
+**2017-09-10 - v1.1.8**
+
+ * added additional check to proof if the `vendor` directory is available and create it if needed;
+   this bugfix is needed because the default `vendor` directory was removed from the [janeczku/calibre-web](https://github.com/janeczku/calibre-web) sources - see https://github.com/janeczku/calibre-web/commit/b494b6b62af5aaa79d22b3cb80afc5420b6de621
+ * due the above bugfix the `kindlegen` symlink works again and is usable at __Calibre Web__
+
 **2017-08-19 - v1.1.7**
 
  * added python library `unidecode` to required dependencys - see also at [janeczku/calibre-web](https://github.com/janeczku/calibre-web) 
