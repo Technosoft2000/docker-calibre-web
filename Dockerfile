@@ -1,8 +1,8 @@
-FROM technosoft2000/alpine-base:3.6-2
+FROM technosoft2000/alpine-base:3.6-3
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.1.8" \
+LABEL image.version="1.1.9" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2017-09-10" \
+      image.date="2017-10-30" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
@@ -10,7 +10,7 @@ LABEL image.version="1.1.8" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.1.8" \
+    VERSION="1.1.9" \
     
     # - PUSER, PGROUP: the APP user and group name
     PUSER="calibre" \

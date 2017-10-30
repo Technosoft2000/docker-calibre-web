@@ -38,6 +38,22 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
+**2017-10-30 - v1.1.9**
+
+ * new base image [technosoft2000/alpine-base:3.6-3](https://hub.docker.com/r/technosoft2000/alpine-base/))
+ * supports also __root__ as user and group via __PGID__ and __PUID__ value 0 correct
+
+```
+[INFO] Docker image version: 1.1.9
+[INFO] Alpine Linux version: 3.6.2
+[WARNING] A group with id 0 exists already [in use by root] and will be modified.
+[WARNING] The group root will be renamed to calibre
+[WARNING] A user with id 0 exists already [in use by root].
+[WARNING] Create user calibre with temporary user id 999.
+[WARNING] Assign non-unique user id 0 to created user calibre
+...
+```
+
 **2017-09-10 - v1.1.8**
 
  * added additional check to proof if the `vendor` directory is available and create it if needed;
@@ -153,6 +169,10 @@ Examples:
  * ```Europe/Vienna```
  * ```America/New_York```
  * ...
+
+Once the container is running you can get all possible timezones as tree via the command ```docker exec -it <CONTAINER> tree /usr/share/zoneinfo```
+
+See also at [possible timezone values](TIMEZONES.md).
 
 __Don't use the value__ `localtime` because it results into: `failed to access '/etc/localtime': Too many levels of symbolic links`
 
