@@ -1,6 +1,13 @@
+**2017-11-04 - v1.1.10**
+
+ * added support for a configuration directory (as asked in ticket #13), 
+   where the configuration related files like `app.db` and `gdrive.db` will be stored;
+   be aware that `metadata.db` will be still stored at the books directory which is required by the original Calibre application
+ * new options `-v <your Calibre Web config folder>:/calibre-web/config` and `-e USE_CONFIG_DIR=true` to setup the configuration directory
+
 **2017-10-30 - v1.1.9**
 
- * new base image [technosoft2000/alpine-base:3.6-3](https://hub.docker.com/r/technosoft2000/alpine-base/))
+ * new base image [technosoft2000/alpine-base:3.6-3](https://hub.docker.com/r/technosoft2000/alpine-base/)
  * supports also __root__ as user and group via __PGID__ and __PUID__ value 0 correct
 
 ```

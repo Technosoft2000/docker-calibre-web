@@ -6,34 +6,29 @@
 # see at https://github.com/janeczku/calibre-web/
 source /init/checkout.sh "$APP_NAME" "$APP_BRANCH" "$APP_REPO" "$APP_HOME/app"
 
-# create symlink for kindlegen (Amazon Kindle Generator)
-KINDLEGEN_DIR="$APP_HOME/kindlegen"
-VENDOR_DIR="$APP_HOME/app/vendor"
-echo "[INFO] kindlegen (Amazon Kindle Generator) will be linked into $VENDOR_DIR"
-KINDLEGEN_SRC="$KINDLEGEN_DIR/kindlegen"
-KINDLEGEN_LINK="$VENDOR_DIR/kindlegen"
-if [[ -L "$KINDLEGEN_LINK" &&  -e "$KINDLEGEN_LINK" ]]; then
-	echo "> kindlegen link $KINDLEGEN_LINK exists already and won't be recreated"
-else
-    # check if vendor directory exists, otherwise create it
-    if [ ! -d "$VENDOR_DIR" ]; then
-        echo "[INFO] Creating the vendor directory: $VENDOR_DIR"
-        mkdir -p $VENDOR_DIR
-        echo "[INFO] Change the ownership of $VENDOR_DIR (including subfolders) to $PUSER:$PGROUP"
-        chown $PUSER:$PGROUP $VENDOR_DIR
+# check if a config directory should be used
+if [ "$USE_CONFIG_DIR" = "true" ]; then
+    CONFIG_DIR="$APP_HOME/config"
+    echo "[INFO] Config directory option is ACTIVATED"
+    echo "> due this the directory $CONFIG_DIR will be used to store the configuration"
+    # check if configuration directory exists, otherwise create it
+    if [ ! -d "$CONFIG_DIR" ]; then
+        echo "[INFO] Creating the configuration directory: $CONFIG_DIR"
+        mkdir -p $CONFIG_DIR
     fi
-	echo "> create kindlegen link $KINDLEGEN_LINK assigned to source $KINDLEGEN_SRC"
-    ln -s $KINDLEGEN_SRC $KINDLEGEN_LINK
+    echo "[INFO] Change the ownership of $CONFIG_DIR (including subfolders) to $PUSER:$PGROUP"
+    chown -R $PUSER:$PGROUP $CONFIG_DIR
+else 
+    CONFIG_DIR=$CALIBRE_PATH
+    echo "[INFO] Config directory option is DEACTIVATED" 
+    echo "> due this the Calibre books directory $CONFIG_DIR will be used to store the configuration"
 fi
 
-# create symlinks for the app databases
-# Use -L to get information about the target of a symlink,
-# not the link itself, as pointed out in the comments
-DIR=/books
-echo "[INFO] Checking permissions of $DIR"
+# check the permissions of the config directory
+echo "[INFO] Checking permissions of the config directory: $CONFIG_DIR"
 
-echo "> Output is: $(stat -L -c "%a %G %g %U %u" $DIR)"
-INFO=( $(stat -L -c "%a %G %g %U %u" $DIR) )
+echo "> Output is: $(stat -L -c "%a %G %g %U %u" $CONFIG_DIR)"
+INFO=( $(stat -L -c "%a %G %g %U %u" $CONFIG_DIR) )
 
 PERM=${INFO[0]}
 echo "> Permissions: $PERM"
@@ -62,19 +57,19 @@ ACCESS="no"
 if ((($PERM & 0002) != 0 )); then
     # Everyone has write access
     ACCESS="yes"
-    echo "> Everyone has write access at $DIR"
+    echo "> Everyone has write access at $CONFIG_DIR"
 elif ((($PERM & 0020) != 0 )); then
     # Some group has write access.
     # Is user in that group?
     gs=( $(groups $PUSER) )
     for g in "${gs[@]}"; do
-        echo "> Check if the group $g has write access at $DIR" 
+        echo "> Check if the group $g has write access at $CONFIG_DIR" 
         if [[ $GROUP == $g ]]; then
             ACCESS="yes"
-            echo "> The group $g has write access at $DIR"
+            echo "> The group $g has write access at $CONFIG_DIR"
             break
         else
-            echo "> The group $g has no write access at $DIR"
+            echo "> The group $g has no write access at $CONFIG_DIR"
         fi
     done
 elif ((($PERM & 0200) != 0 )); then
@@ -82,33 +77,98 @@ elif ((($PERM & 0200) != 0 )); then
     # Does the user own the file?
     if [[ $PUSER == $OWNER ]] || [[ $PUID == $OWNER_UID ]]; then
         ACCESS="yes"
-        echo "> The user $PUSER:$PUID is the owner and has write access at $DIR"
-	else
-	    echo "> The user $PUSER:$PUID is not the owner has no write access at $DIR"
+        echo "> The user $PUSER:$PUID is the owner and has write access at $CONFIG_DIR"
+    else
+        echo "> The user $PUSER:$PUID is not the owner has no write access at $CONFIG_DIR"
     fi
 fi
 
 if [[ $ACCESS == "yes" ]]; then
-    echo "[INFO] app.db and gdrive.db will be linked into $DIR"
-	
-	APPDB_SRC="$DIR/app.db"
-	APPDB_LINK="$APP_HOME/app/app.db"
-	if [[ -L "$APPDB_LINK" &&  -e "$APPDB_LINK" ]]; then
-        echo "> app.db link $APPDB_LINK exists already and won't be recreated"
-	else
-	    echo "> create app.db link $APPDB_LINK assigned to source $APPDB_SRC"
-	    ln -s $APPDB_SRC $APPDB_LINK
-	fi
+    # create symlinks for the app databases (configuration)
+    echo "[INFO] 'app.db' and 'gdrive.db' will be linked into $CONFIG_DIR"
     
-	GDRIVEDB_SRC="$DIR/gdrive.db"
-	GDRIVEDB_LINK="$APP_HOME/app/gdrive.db"
+    APPDB_SRC="$CONFIG_DIR/app.db"
+    APPDB_LINK="$APP_HOME/app/app.db"
+    if [[ -L "$APPDB_LINK" &&  -e "$APPDB_LINK" ]]; then
+        echo "> 'app.db' link $APPDB_LINK exists already and won't be recreated"
+    else
+        echo "> create 'app.db' link $APPDB_LINK assigned to source $APPDB_SRC"
+        ln -s $APPDB_SRC $APPDB_LINK
+    fi
+    
+    GDRIVEDB_SRC="$CONFIG_DIR/gdrive.db"
+    GDRIVEDB_LINK="$APP_HOME/app/gdrive.db"
     if [[ -L "$GDRIVEDB_LINK" && -e "$GDRIVEDB_LINK" ]]; then
-        echo "> gdrive.db link $GDRIVEDB_LINK exists already and won't be recreated"
-	else
-		echo "> create gdrive.db link $GDRIVEDB_LINK assigned to source $GDRIVEDB_SRC"
-		ln -s $GDRIVEDB_SRC $GDRIVEDB_LINK
-	fi
+        echo "> 'gdrive.db' link $GDRIVEDB_LINK exists already and won't be recreated"
+    else
+        echo "> create 'gdrive.db' link $GDRIVEDB_LINK assigned to source $GDRIVEDB_SRC"
+        ln -s $GDRIVEDB_SRC $GDRIVEDB_LINK
+    fi
 
+else
+    echo "[WARNING] No write access at $CONFIG_DIR - app.db and gdrive.db wont be linked into $CONFIG_DIR"
+fi
+
+# check the permissions of the books directory
+echo "[INFO] Checking permissions of the books directory: $CALIBRE_PATH"
+
+echo "> Output is: $(stat -L -c "%a %G %g %U %u" $CALIBRE_PATH)"
+INFO=( $(stat -L -c "%a %G %g %U %u" $CALIBRE_PATH) )
+
+PERM=${INFO[0]}
+echo "> Permissions: $PERM"
+
+GROUP=${INFO[1]}
+echo "> Assigned group: $GROUP"
+
+GROUP_GID=${INFO[2]}
+echo "> Assigned group ID: $GROUP_GID"
+
+OWNER=${INFO[3]}
+echo "> Assigned owner: $OWNER"
+
+OWNER_UID=${INFO[4]}
+echo "> Assigned owner ID: $OWNER_UID"
+
+# get the number of digits of PERM; could be 3 or 4
+PERMLEN=${#PERM}
+if [[ $PERMLEN == 3 ]]; then
+    # add a precending zero because otherwise the permission checks doesn't work
+    PERM="0$PERM"
+fi
+echo "> Using permissions for checks: $PERM"
+
+ACCESS="no"
+if ((($PERM & 0002) != 0 )); then
+    # Everyone has write access
+    ACCESS="yes"
+    echo "> Everyone has write access at $CALIBRE_PATH"
+elif ((($PERM & 0020) != 0 )); then
+    # Some group has write access.
+    # Is user in that group?
+    gs=( $(groups $PUSER) )
+    for g in "${gs[@]}"; do
+        echo "> Check if the group $g has write access at $CALIBRE_PATH" 
+        if [[ $GROUP == $g ]]; then
+            ACCESS="yes"
+            echo "> The group $g has write access at $CALIBRE_PATH"
+            break
+        else
+            echo "> The group $g has no write access at $CALIBRE_PATH"
+        fi
+    done
+elif ((($PERM & 0200) != 0 )); then
+    # The owner has write access.
+    # Does the user own the file?
+    if [[ $PUSER == $OWNER ]] || [[ $PUID == $OWNER_UID ]]; then
+        ACCESS="yes"
+        echo "> The user $PUSER:$PUID is the owner and has write access at $CALIBRE_PATH"
+    else
+        echo "> The user $PUSER:$PUID is not the owner has no write access at $CALIBRE_PATH"
+    fi
+fi
+
+if [[ $ACCESS == "yes" ]]; then
     # check if a Calibre library exists already, otherwise copy initial files
     if [ ! -f $CALIBRE_PATH/metadata.db ]; then
         echo "[WARNING] The mapped volume for $CALIBRE_PATH doesn't contain a Calibre database file 'metadata.db'"
@@ -116,10 +176,32 @@ if [[ $ACCESS == "yes" ]]; then
         cp /init/calibre-init/* $CALIBRE_PATH
         chown $PUSER:$PGROUP $CALIBRE_PATH/metadata.db
         chown $PUSER:$PGROUP $CALIBRE_PATH/metadata_db_prefs_backup.json
+    else
+        echo "[INFO] The mapped volume for $CALIBRE_PATH contains a Calibre database file 'metadata.db' which will be used"
     fi
-
 else
-    echo "[WARNING] No write access at $DIR - app.db and gdrive.db wont be linked into $DIR"
+    echo "[WARNING] No write access at $CALIBRE_PATH - new 'metadata.db' and books can't be stored at this directory"
+    echo "> Please check and modify the permissions of the directory"
+fi
+
+# create symlink for kindlegen (Amazon Kindle Generator)
+KINDLEGEN_DIR="$APP_HOME/kindlegen"
+VENDOR_DIR="$APP_HOME/app/vendor"
+echo "[INFO] kindlegen (Amazon Kindle Generator) will be linked into $VENDOR_DIR"
+KINDLEGEN_SRC="$KINDLEGEN_DIR/kindlegen"
+KINDLEGEN_LINK="$VENDOR_DIR/kindlegen"
+if [[ -L "$KINDLEGEN_LINK" &&  -e "$KINDLEGEN_LINK" ]]; then
+    echo "> kindlegen link $KINDLEGEN_LINK exists already and won't be recreated"
+else
+    # check if vendor directory exists, otherwise create it
+    if [ ! -d "$VENDOR_DIR" ]; then
+        echo "[INFO] Creating the vendor directory: $VENDOR_DIR"
+        mkdir -p $VENDOR_DIR
+        echo "[INFO] Change the ownership of $VENDOR_DIR (including subfolders) to $PUSER:$PGROUP"
+        chown $PUSER:$PGROUP $VENDOR_DIR
+    fi
+    echo "> create kindlegen link $KINDLEGEN_LINK assigned to source $KINDLEGEN_SRC"
+    ln -s $KINDLEGEN_SRC $KINDLEGEN_LINK
 fi
 
 # check if a /tmp directory is available, if not create one

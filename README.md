@@ -38,27 +38,12 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
-**2017-10-30 - v1.1.9**
+**2017-11-04 - v1.1.10**
 
- * new base image [technosoft2000/alpine-base:3.6-3](https://hub.docker.com/r/technosoft2000/alpine-base/))
- * supports also __root__ as user and group via __PGID__ and __PUID__ value 0 correct
-
-```
-[INFO] Docker image version: 1.1.9
-[INFO] Alpine Linux version: 3.6.2
-[WARNING] A group with id 0 exists already [in use by root] and will be modified.
-[WARNING] The group root will be renamed to calibre
-[WARNING] A user with id 0 exists already [in use by root].
-[WARNING] Create user calibre with temporary user id 999.
-[WARNING] Assign non-unique user id 0 to created user calibre
-...
-```
-
-**2017-09-10 - v1.1.8**
-
- * added additional check to proof if the `vendor` directory is available and create it if needed;
-   this bugfix is needed because the default `vendor` directory was removed from the [janeczku/calibre-web](https://github.com/janeczku/calibre-web) sources - see https://github.com/janeczku/calibre-web/commit/b494b6b62af5aaa79d22b3cb80afc5420b6de621
- * due the above bugfix the `kindlegen` symlink works again and is usable at __Calibre Web__
+ * added support for a configuration directory (as asked in ticket #13), 
+   where the configuration related files like `app.db` and `gdrive.db` will be stored;
+   be aware that `metadata.db` will be still stored at the books directory which is required by the original Calibre application
+ * new options `-v <your Calibre Web config folder>:/calibre-web/config` and `-e USE_CONFIG_DIR=true` to setup the configuration directory
 
 For previous changes see at [full changelog](CHANGELOG.md).
 
@@ -99,6 +84,8 @@ __Create the container:__
 ```
 docker create --name=calibre-web --restart=always \
 -v <your Calibre books folder>:/books \
+[-v <your Calibre Web config folder>:/calibre-web/config \]
+[-e USE_CONFIG_DIR=true \]
 [-e APP_REPO=https://github.com/janeczku/calibre-web.git \]
 [-e APP_BRANCH=master \]
 [-e SET_CONTAINER_TIMEZONE=true \]
@@ -124,6 +111,8 @@ or
 ```
 docker create --name=calibre-web --restart=always \
 -v /volume1/books/calibre:/books \
+-v /volume1/docker/apps/calibre-web/config:/calibre-web/config \
+-e USE_CONFIG_DIR=true \
 -e SET_CONTAINER_TIMEZONE=true \
 -e CONTAINER_TIMEZONE=Europe/Vienna \
 -e PGID=65539 -e PUID=1029 \
@@ -149,6 +138,8 @@ Accessing http://'host':8080 (e.g. http://192.168.0.10:8080) would then show you
 * `-p 8083` - http port for the web user interface
 * `-v /books` - local path which contains the Calibre books and the necessary `metadata.db`  which holds all collected meta-information of the books
 * `-v /etc/localhost` - for timesync - __optional__
+* `-v /calibre-web/config` - local path for Calibre Web config files, like `app.db` and `gdrive.db`; **IMPORTANT**: the environment variable `USE_CONFIG_DIR` must be set to `true` - __optional__
+* `-e USE_CONFIG_DIR=true` - activate the usage of a dedicated configuration directory, otherwise the `books` directory will be used (default) - __optional__
 * `-e APP_REPO` - set it to the Calibre Web GitHub repository; by default it uses https://github.com/janeczku/calibre-web.git - __optional__
 * `-e APP_BRANCH` - set which Calibre Web GitHub repository branch you want to use, __master__ (default branch) - __optional__
 * `-e SET_CONTAINER_TIMEZONE` - set it to `true` if the specified `CONTAINER_TIMEZONE` should be used - __optional__
@@ -279,15 +270,15 @@ docker logs -f calibre-web
     '---'      `--'---' |   :    .'   ;  |,'     
                         ;   | .'      '--'       
                         `---'                    
-      PRESENTS ANOTHER AWESOME DOCKER IMAGE     
-      ~~~~~         Calibre Web       ~~~~~                                           
-[INFO] Docker image version: 1.1.8
-[INFO] Alpine Linux version: 3.6.0
+      PRESENTS ANOTHER AWESOME DOCKER IMAGE
+      ~~~~~         Calibre Web       ~~~~~
+[INFO] Docker image version: 1.1.10
+[INFO] Alpine Linux version: 3.6.2
 [WARNING] A group with id 100 exists already [in use by users] and will be modified.
 [WARNING] The group users will be renamed to calibre
 [INFO] Create user calibre with id 1029
 [INFO] Current active timezone is UTC
-Sun Sep 10 17:12:13 CEST 2017
+Sat Nov  4 16:16:42 CET 2017
 [INFO] Container timezone is changed to: Europe/Vienna
 [INFO] Change the ownership of /calibre-web (including subfolders) to calibre:calibre
 [INFO] Current git version is:
@@ -301,19 +292,30 @@ POST git-upload-pack (189 bytes)
 On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working tree clean
-b6b5313f2d97210f325c6f973cd9ee710021043f
+af8d908bbac22409e7cd5f3bcc7ea34e96193961
 [INFO] ... pulling sources
 Already up-to-date.
 [INFO] ... git status after update is
 On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working tree clean
-b6b5313f2d97210f325c6f973cd9ee710021043f
-[INFO] kindlegen (Amazon Kindle Generator) will be linked into /calibre-web/app/vendor
-[INFO] Creating the vendor directory: /calibre-web/app/vendor
-[INFO] Change the ownership of /calibre-web/app/vendor (including subfolders) to calibre:calibre
-> create kindlegen link /calibre-web/app/vendor/kindlegen assigned to source /calibre-web/kindlegen/kindlegen
-[INFO] Checking permissions of /books
+af8d908bbac22409e7cd5f3bcc7ea34e96193961
+[INFO] Config directory option is ACTIVATED
+> due this the directory /calibre-web/config will be used to store the configuration
+[INFO] Change the ownership of /calibre-web/config (including subfolders) to calibre:calibre
+[INFO] Checking permissions of the config directory: /calibre-web/config
+> Output is: 755 calibre 100 calibre 1029
+> Permissions: 755
+> Assigned group: calibre
+> Assigned group ID: 100
+> Assigned owner: calibre
+> Assigned owner ID: 1029
+> Using permissions for checks: 0755
+> The user calibre:1029 is the owner and has write access at /calibre-web/config
+[INFO] 'app.db' and 'gdrive.db' will be linked into /calibre-web/config
+> create 'app.db' link /calibre-web/app/app.db assigned to source /calibre-web/config/app.db
+> create 'gdrive.db' link /calibre-web/app/gdrive.db assigned to source /calibre-web/config/gdrive.db
+[INFO] Checking permissions of the books directory: /books
 > Output is: 772 calibre 100 UNKNOWN 1026
 > Permissions: 772
 > Assigned group: calibre
@@ -322,9 +324,11 @@ b6b5313f2d97210f325c6f973cd9ee710021043f
 > Assigned owner ID: 1026
 > Using permissions for checks: 0772
 > Everyone has write access at /books
-[INFO] app.db and gdrive.db will be linked into /books
-> create app.db link /calibre-web/app/app.db assigned to source /books/app.db
-> create gdrive.db link /calibre-web/app/gdrive.db assigned to source /books/gdrive.db
+[INFO] The mapped volume for /books contains a Calibre database file 'metadata.db' which will be used
+[INFO] kindlegen (Amazon Kindle Generator) will be linked into /calibre-web/app/vendor
+[INFO] Creating the vendor directory: /calibre-web/app/vendor
+[INFO] Change the ownership of /calibre-web/app/vendor (including subfolders) to calibre:calibre
+> create kindlegen link /calibre-web/app/vendor/kindlegen assigned to source /calibre-web/kindlegen/kindlegen
 [INFO] Creating directory for temporary directories and files: /tmp
 [INFO] Change the ownership of /tmp (including subfolders) to calibre:calibre
 [INFO] Launching Calibre-Web ...
