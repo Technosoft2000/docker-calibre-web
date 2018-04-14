@@ -1,3 +1,30 @@
+**2018-04-14 - v1.1.11**
+ 
+ * exposed additional directories (see ticket #24)
+   `-v /calibre-web/app` - local path for Calibre Web application files
+   `-v /calibre-web/kindlegen` - local path for Calibre Web kindlegen application
+ * added support for setting the Calibre Web application folder (see ticket #27);
+   map volume `-v /calibre-web/app` if you want to use Google Drive 
+ * updated python `requirements` and `optional requirements`at dockerfile according to
+   - https://github.com/janeczku/calibre-web/blob/master/requirements.txt
+   - https://github.com/janeczku/calibre-web/blob/master/optional-requirements.txt
+ * added __Container Directory Structure__ information at README.md (see ticket #24)
+ * kindlegen archive will be downloaded on container startup into `/calibre-web/kindlegen` 
+   and is not directly included in the image anymore
+ * ownership of symlink of `app.db`, `gdrive.db` and `kindlegen` is changed from _root_ to the _calibre_ user & group 
+
+ __Example:__
+```
+docker create --name=calibre-web --restart=always \
+-v /volume1/books/calibre:/books \
+-v /volume1/docker/apps/calibre-web/app:/calibre-web/app \
+-v /volume1/docker/apps/calibre-web/config:/calibre-web/config \
+-v /volume1/docker/apps/calibre-web/kindlegen:/calibre-web/kindlegen \
+-e PGID=65539 -e PUID=1029 \
+-p 8083:8083 \
+technosoft2000/calibre-web
+```
+
 **2017-11-04 - v1.1.10**
 
  * added support for a configuration directory (as asked in ticket #13), 

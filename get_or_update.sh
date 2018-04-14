@@ -94,6 +94,8 @@ if [[ $ACCESS == "yes" ]]; then
     else
         echo "> create 'app.db' link $APPDB_LINK assigned to source $APPDB_SRC"
         ln -s $APPDB_SRC $APPDB_LINK
+        echo "> change the ownership of $APPDB_LINK to $PUSER:$PGROUP"
+        chown -h $PUSER:$PGROUP $APPDB_LINK
     fi
     
     GDRIVEDB_SRC="$CONFIG_DIR/gdrive.db"
@@ -103,6 +105,8 @@ if [[ $ACCESS == "yes" ]]; then
     else
         echo "> create 'gdrive.db' link $GDRIVEDB_LINK assigned to source $GDRIVEDB_SRC"
         ln -s $GDRIVEDB_SRC $GDRIVEDB_LINK
+        echo "> change the ownership of $GDRIVEDB_LINK to $PUSER:$PGROUP"
+        chown -h $PUSER:$PGROUP $GDRIVEDB_LINK
     fi
 
 else
@@ -184,6 +188,28 @@ else
     echo "> Please check and modify the permissions of the directory"
 fi
 
+# create the kindlegen directory if it doesn't exist
+if [[ ! -d $APP_HOME/kindlegen ]]; then
+    echo "[INFO] Creating the kindlegen directory: $APP_HOME/kindlegen"
+    mkdir -p $APP_HOME/kindlegen
+    echo "[INFO] Change the ownership of $APP_HOME/kindlegen (including subfolders) to $PUSER:$PGROUP"
+    chown -R $PUSER:$PGROUP $APP_HOME/kindlegen
+else
+    echo "[INFO] The kindlegen directory exist already and will be used: $APP_HOME/kindlegen"
+fi
+
+# download and install kindlegen (Amazon Kindle Generator)
+if [[ ! -f $APP_HOME/kindlegen/kindlegen ]]; then
+    echo "[INFO] Downloading kindlegen from $AMAZON_KG_URL into directory: $APP_HOME/kindlegen/$AMAZON_KG_TAR"
+    wget $AMAZON_KG_URL -P $APP_HOME/kindlegen
+    echo "[INFO] Extracting $AMAZON_KG_TAR into directory: $APP_HOME/kindlegen"
+    tar -xzf $APP_HOME/kindlegen/$AMAZON_KG_TAR -C $APP_HOME/kindlegen
+    echo "[INFO] Change the ownership of $APP_HOME/kindlegen (including subfolders) to $PUSER:$PGROUP"
+    chown -R $PUSER:$PGROUP $APP_HOME/kindlegen
+else
+    echo "[INFO] Kindlegen application exists already in directory: $APP_HOME/kindlegen"
+fi
+
 # create symlink for kindlegen (Amazon Kindle Generator)
 KINDLEGEN_DIR="$APP_HOME/kindlegen"
 VENDOR_DIR="$APP_HOME/app/vendor"
@@ -202,6 +228,8 @@ else
     fi
     echo "> create kindlegen link $KINDLEGEN_LINK assigned to source $KINDLEGEN_SRC"
     ln -s $KINDLEGEN_SRC $KINDLEGEN_LINK
+    echo "> change the ownership of $KINDLEGEN_LINK to $PUSER:$PGROUP"
+    chown -h $PUSER:$PGROUP $KINDLEGEN_LINK
 fi
 
 # check if a /tmp directory is available, if not create one

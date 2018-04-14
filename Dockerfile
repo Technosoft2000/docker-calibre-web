@@ -1,8 +1,8 @@
 FROM technosoft2000/alpine-base:3.6-3
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.1.10" \
+LABEL image.version="1.1.11" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2017-11-04" \
+      image.date="2018-04-14" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
@@ -10,7 +10,7 @@ LABEL image.version="1.1.10" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.1.10" \
+    VERSION="1.1.11" \
     
     # - PUSER, PGROUP: the APP user and group name
     PUSER="calibre" \
@@ -65,17 +65,19 @@ RUN \
 
     # install additional python packages:
     ### REQUIRED ###
+    ### see https://github.com/janeczku/calibre-web/blob/master/requirements.txt
     pip --no-cache-dir install --upgrade \
       pip setuptools \
-      pyopenssl babel \
-      flask flask-babel flask-login flask-principal \
-      iso-639 pypdf2 pytz requests \
-      sqlalchemy tornado wand unidecode \
+      pyopenssl Babel \
+      Flask Flask-Babel Flask-Login Flask-Principal \
+      iso-639 PyPDF2 pytz requests \
+      SQLAlchemy tornado Wand unidecode \
     ### OPTIONAL ###
+    ### https://github.com/janeczku/calibre-web/blob/master/optional-requirements.txt
       gevent google-api-python-client greenlet \
       httplib2 lxml oauth2client \
       pyasn1-modules pyasn1 pydrive pyyaml \
-      rsa six uritemplate \
+      rsa six uritemplate goodreads python-Levenshtein\
       && \
 
     # get actual ImageMagic 6 version info
@@ -126,11 +128,6 @@ RUN \
     # create Calibre Web folder structure
     mkdir -p $APP_HOME/app && \
 
-    # download and install kindlegen (Amazon Kindle Generator)
-    mkdir -p $APP_HOME/kindlegen && \
-    wget $AMAZON_KG_URL -P /tmp && \
-    tar -xzf /tmp/$AMAZON_KG_TAR -C $APP_HOME/kindlegen && \
-
     # cleanup temporary files
     rm -rf /tmp && \
     rm -rf /var/cache/apk/*
@@ -147,6 +144,9 @@ COPY calibre-init /init/calibre-init
 
 # Set volumes for the Calibre Web folder structure
 VOLUME /books
+VOLUME $APP_HOME/app
+VOLUME $APP_HOME/config
+VOLUME $APP_HOME/kindlegen
 
 # Expose ports
 EXPOSE 8083

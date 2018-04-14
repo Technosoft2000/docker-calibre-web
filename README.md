@@ -38,12 +38,32 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
-**2017-11-04 - v1.1.10**
+**2018-04-14 - v1.1.11**
+ 
+ * exposed additional directories (see ticket #24)
+   `-v /calibre-web/app` - local path for Calibre Web application files
+   `-v /calibre-web/kindlegen` - local path for Calibre Web kindlegen application
+ * added support for setting the Calibre Web application folder (see ticket #27);
+   map volume `-v /calibre-web/app` if you want to use Google Drive 
+ * updated python `requirements` and `optional requirements`at dockerfile according to
+   - https://github.com/janeczku/calibre-web/blob/master/requirements.txt
+   - https://github.com/janeczku/calibre-web/blob/master/optional-requirements.txt
+ * added __Container Directory Structure__ information at README.md (see ticket #24)
+ * kindlegen archive will be downloaded on container startup into `/calibre-web/kindlegen` 
+   and is not directly included in the image anymore
+ * ownership of symlink of `app.db`, `gdrive.db` and `kindlegen` is changed from _root_ to the _calibre_ user & group 
 
- * added support for a configuration directory (as asked in ticket #13), 
-   where the configuration related files like `app.db` and `gdrive.db` will be stored;
-   be aware that `metadata.db` will be still stored at the books directory which is required by the original Calibre application
- * new options `-v <your Calibre Web config folder>:/calibre-web/config` and `-e USE_CONFIG_DIR=true` to setup the configuration directory
+ __Example:__
+```
+docker create --name=calibre-web --restart=always \
+-v /volume1/books/calibre:/books \
+-v /volume1/docker/apps/calibre-web/app:/calibre-web/app \
+-v /volume1/docker/apps/calibre-web/config:/calibre-web/config \
+-v /volume1/docker/apps/calibre-web/kindlegen:/calibre-web/kindlegen \
+-e PGID=65539 -e PUID=1029 \
+-p 8083:8083 \
+technosoft2000/calibre-web
+```
 
 For previous changes see at [full changelog](CHANGELOG.md).
 
@@ -84,6 +104,8 @@ __Create the container:__
 ```
 docker create --name=calibre-web --restart=always \
 -v <your Calibre books folder>:/books \
+[-v <your Calibre Web application folder>:/calibre-web/app] \
+[-v <your Calibre Web kindlegen folder>:/calibre-web/kindlegen`]
 [-v <your Calibre Web config folder>:/calibre-web/config \]
 [-e USE_CONFIG_DIR=true \]
 [-e APP_REPO=https://github.com/janeczku/calibre-web.git \]
@@ -137,6 +159,8 @@ Accessing http://'host':8080 (e.g. http://192.168.0.10:8080) would then show you
 ### Details ###
 * `-p 8083` - http port for the web user interface
 * `-v /books` - local path which contains the Calibre books and the necessary `metadata.db`  which holds all collected meta-information of the books
+* `-v /calibre-web/app` - local path for Calibre Web application files; set this volume if you want to use Google Drive
+* `-v /calibre-web/kindlegen` - local path for Calibre Web kindlegen application
 * `-v /etc/localhost` - for timesync - __optional__
 * `-v /calibre-web/config` - local path for Calibre Web config files, like `app.db` and `gdrive.db`; **IMPORTANT**: the environment variable `USE_CONFIG_DIR` must be set to `true` - __optional__
 * `-e USE_CONFIG_DIR=true` - activate the usage of a dedicated configuration directory, otherwise the `books` directory will be used (default) - __optional__
@@ -175,6 +199,35 @@ In this instance PUID=1001 and PGID=1001. To find yours use id user as below:
 ```
   $ id <dockeruser>
     uid=1001(dockeruser) gid=1001(dockergroup) groups=1001(dockergroup)
+```
+
+## Container Directory Structure ##
+```
+ /
+   |- books
+   |- calibre-web
+       |- app
+       |    |- "all Calibre Web Application files"
+       |    |- app.db -> /calibre-web/config/app.db
+       |    |- gdrive.db -> /calibre-web/config/gdrive.db
+       |    |- calibre-web.log
+       |    |- cps 
+       |    |    |- *.py
+       |    |    |- *.pyc
+       |    |
+       |    |- vendor
+       |         |- kindlegen -> /calibre-web/kindlegen/kindlegen
+       |
+       |- config
+       |    |- app.db
+       |    |- gdrive.db
+       |
+       |- kindlegen
+            |- EULA*.txt
+            |- KindleGen Legal Notices*.txt
+            |- docs
+            |- kindlegen
+            |- manual.html
 ```
 
 ## Additional ##
