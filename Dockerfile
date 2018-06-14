@@ -1,8 +1,8 @@
 FROM technosoft2000/alpine-base:3.6-3
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.1.11" \
+LABEL image.version="1.1.12" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2018-04-14" \
+      image.date="2018-06-14" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
@@ -10,7 +10,7 @@ LABEL image.version="1.1.11" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.1.11" \
+    VERSION="1.1.12" \
     
     # - PUSER, PGROUP: the APP user and group name
     PUSER="calibre" \
@@ -144,9 +144,7 @@ COPY calibre-init /init/calibre-init
 
 # Set volumes for the Calibre Web folder structure
 VOLUME /books
-VOLUME $APP_HOME/app
-VOLUME $APP_HOME/config
-VOLUME $APP_HOME/kindlegen
+VOLUME $APP_HOME
 
 # Expose ports
 EXPOSE 8083
