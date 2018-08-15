@@ -38,32 +38,55 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
-**2018-04-14 - v1.1.11**
- 
- * exposed additional directories (see ticket #24)
-   `-v /calibre-web/app` - local path for Calibre Web application files
-   `-v /calibre-web/kindlegen` - local path for Calibre Web kindlegen application
- * added support for setting the Calibre Web application folder (see ticket #27);
-   map volume `-v /calibre-web/app` if you want to use Google Drive 
- * updated python `requirements` and `optional requirements`at dockerfile according to
-   - https://github.com/janeczku/calibre-web/blob/master/requirements.txt
-   - https://github.com/janeczku/calibre-web/blob/master/optional-requirements.txt
- * added __Container Directory Structure__ information at README.md (see ticket #24)
- * kindlegen archive will be downloaded on container startup into `/calibre-web/kindlegen` 
-   and is not directly included in the image anymore
- * ownership of symlink of `app.db`, `gdrive.db` and `kindlegen` is changed from _root_ to the _calibre_ user & group 
+**2018-08-15 - v1.2.0**
 
- __Example:__
+ * new base image [technosoft2000/alpine-base:3.8-1](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.8
+ * integrated Alpine **glibc v2.28-r0** for original Calibre
+ * integrated enhancements from [jim3ma/docker-calibre-web](https://github.com/jim3ma/docker-calibre-web) needed for calibre **ebook-convert** command line tool
+ * **Important:** 
+   at **Admin** -> **Basic Configuration** -> **E-Book converter** you've to set the converter which you want to use:
+   - for the option **Use Kindlegen** set the **Path to convertertool** to `/calibre-web/app/vendor/kindlegen`
+     and at **About** you will see then `kindlegen	Amazon kindlegen(Linux) V2.9 build 1028-0897292`
+   - for the option **Use calibre's ebook converter** set the **Path to convertertool** to `/opt/calibre/bin/ebook-convert`
+     and at **About** you will see then `Calibre converter	ebook-convert (calibre 3.29.0)`
+ * **Known issue:**
+   if you map the old/existing app volume like `-v /volume1/docker/apps/calibre-web/app:/calibre-web/app`
+   then you'll get the following issue at startup
+
 ```
-docker create --name=calibre-web --restart=always \
--v /volume1/books/calibre:/books \
--v /volume1/docker/apps/calibre-web/app:/calibre-web/app \
--v /volume1/docker/apps/calibre-web/config:/calibre-web/config \
--v /volume1/docker/apps/calibre-web/kindlegen:/calibre-web/kindlegen \
--e PGID=65539 -e PUID=1029 \
--p 8083:8083 \
-technosoft2000/calibre-web
+[INFO] Checkout the latest Calibre-Web version ...
+[INFO] Autoupdate is active, try to pull the latest sources for Calibre-Web ...
+[INFO] ... current git status is
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+[INFO] ... pulling sources
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+[INFO] ... git status after update is
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
 ```
+
+   To solve the issue delete the old files at `-v /volume1/docker/apps/calibre-web/app:/calibre-web/app`
+   before you create and start the container.
+
+| **Program library** | **Installed Version** |
+| ------------------- | --------------------- |
+| Sqlite	            | v3.24.0               |
+| lxml	              | v4.2.4.0              |
+| Image Magick	      | ImageMagick 6.9.10-10 Q16 x86_64 2018-08-15 https://www.imagemagick.org |
+| kindlegen	          | Amazon kindlegen(Linux) V2.9 build 1028-0897292 |
+| Flask	              | v1.0.2                |
+| Babel	              | v2.6.0                |
+| PyPdf	              | v1.26.0               |
+| pySqlite	          | v2.6.0                |
+| Python	            | 2.7.15 (default, May 10 2018, 21:00:22) [GCC 6.4.0] |
+| Sqlalchemy	        | v1.2.10               |
+| Iso 639	            | v0.4.5                |
+| Gevent	            | v1.3.5                |
+| Requests	          | v2.19.1               |
+| Flask Login	        | v0.4.1                |
+| Flask Principal	    | v0.4.0                |
 
 For previous changes see at [full changelog](CHANGELOG.md).
 
@@ -324,18 +347,18 @@ docker logs -f calibre-web
                         ;   | .'      '--'       
                         `---'                    
       PRESENTS ANOTHER AWESOME DOCKER IMAGE
-      ~~~~~         Calibre Web       ~~~~~
-[INFO] Docker image version: 1.1.10
-[INFO] Alpine Linux version: 3.6.2
+      ~~~~~         Calibre Web       ~~~~~                          
+[INFO] Docker image version: 1.2.0
+[INFO] Alpine Linux version: 3.8.0
 [WARNING] A group with id 100 exists already [in use by users] and will be modified.
 [WARNING] The group users will be renamed to calibre
 [INFO] Create user calibre with id 1029
 [INFO] Current active timezone is UTC
-Sat Nov  4 16:16:42 CET 2017
+Wed Aug 15 21:37:35 CEST 2018
 [INFO] Container timezone is changed to: Europe/Vienna
 [INFO] Change the ownership of /calibre-web (including subfolders) to calibre:calibre
 [INFO] Current git version is:
-git version 2.13.5
+git version 2.18.0
 [INFO] Checkout the latest Calibre-Web version ...
 [INFO] ... git clone -b master --single-branch https://github.com/janeczku/calibre-web.git /calibre-web/app -v
 Cloning into '/calibre-web/app'...
@@ -343,16 +366,15 @@ POST git-upload-pack (189 bytes)
 [INFO] Autoupdate is active, try to pull the latest sources for Calibre-Web ...
 [INFO] ... current git status is
 On branch master
-Your branch is up-to-date with 'origin/master'.
+Your branch is up to date with 'origin/master'.
 nothing to commit, working tree clean
-af8d908bbac22409e7cd5f3bcc7ea34e96193961
+f8132f4d024b4801185572ca8ebc64b04b075b34
 [INFO] ... pulling sources
-Already up-to-date.
+Already up to date.
 [INFO] ... git status after update is
 On branch master
-Your branch is up-to-date with 'origin/master'.
-nothing to commit, working tree clean
-af8d908bbac22409e7cd5f3bcc7ea34e96193961
+Your branch is up to date with 'origin/master'.
+f8132f4d024b4801185572ca8ebc64b04b075b34
 [INFO] Config directory option is ACTIVATED
 > due this the directory /calibre-web/config will be used to store the configuration
 [INFO] Change the ownership of /calibre-web/config (including subfolders) to calibre:calibre
@@ -367,7 +389,9 @@ af8d908bbac22409e7cd5f3bcc7ea34e96193961
 > The user calibre:1029 is the owner and has write access at /calibre-web/config
 [INFO] 'app.db' and 'gdrive.db' will be linked into /calibre-web/config
 > create 'app.db' link /calibre-web/app/app.db assigned to source /calibre-web/config/app.db
+> change the ownership of /calibre-web/app/app.db to calibre:calibre
 > create 'gdrive.db' link /calibre-web/app/gdrive.db assigned to source /calibre-web/config/gdrive.db
+> change the ownership of /calibre-web/app/gdrive.db to calibre:calibre
 [INFO] Checking permissions of the books directory: /books
 > Output is: 772 calibre 100 UNKNOWN 1026
 > Permissions: 772
@@ -378,11 +402,16 @@ af8d908bbac22409e7cd5f3bcc7ea34e96193961
 > Using permissions for checks: 0772
 > Everyone has write access at /books
 [INFO] The mapped volume for /books contains a Calibre database file 'metadata.db' which will be used
+[INFO] The kindlegen directory exist already and will be used: /calibre-web/kindlegen
+[INFO] Kindlegen application exists already in directory: /calibre-web/kindlegen
 [INFO] kindlegen (Amazon Kindle Generator) will be linked into /calibre-web/app/vendor
 [INFO] Creating the vendor directory: /calibre-web/app/vendor
 [INFO] Change the ownership of /calibre-web/app/vendor (including subfolders) to calibre:calibre
 > create kindlegen link /calibre-web/app/vendor/kindlegen assigned to source /calibre-web/kindlegen/kindlegen
+> change the ownership of /calibre-web/app/vendor/kindlegen to calibre:calibre
 [INFO] Creating directory for temporary directories and files: /tmp
 [INFO] Change the ownership of /tmp (including subfolders) to calibre:calibre
 [INFO] Launching Calibre-Web ...
+[2018-08-15 21:38:01,618] INFO in web: Starting Calibre Web...
+[2018-08-15 21:38:02,083] INFO in server: Starting Gevent server
 ```

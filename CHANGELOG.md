@@ -1,3 +1,53 @@
+**2018-08-15 - v1.2.0**
+
+ * new base image [technosoft2000/alpine-base:3.8-1](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.8
+ * integrated Alpine **glibc v2.28-r0** for original Calibre
+ * integrated enhancements from [jim3ma/docker-calibre-web](https://github.com/jim3ma/docker-calibre-web) needed for calibre **ebook-convert** command line tool
+ * **Important:** 
+   at **Admin** -> **Basic Configuration** -> **E-Book converter** you've to set the converter which you want to use:
+   - for the option **Use Kindlegen** set the **Path to convertertool** to `/calibre-web/app/vendor/kindlegen`
+     and at **About** you will see then `kindlegen	Amazon kindlegen(Linux) V2.9 build 1028-0897292`
+   - for the option **Use calibre's ebook converter** set the **Path to convertertool** to `/opt/calibre/bin/ebook-convert`
+     and at **About** you will see then `Calibre converter	ebook-convert (calibre 3.29.0)`
+ * **Known issue:**
+   if you map the old/existing app volume like `-v /volume1/docker/apps/calibre-web/app:/calibre-web/app`
+   then you'll get the following issue at startup
+
+```
+[INFO] Checkout the latest Calibre-Web version ...
+[INFO] Autoupdate is active, try to pull the latest sources for Calibre-Web ...
+[INFO] ... current git status is
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+[INFO] ... pulling sources
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+[INFO] ... git status after update is
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+```
+
+   To solve the issue delete the old files at `-v /volume1/docker/apps/calibre-web/app:/calibre-web/app`
+   before you create and start the container.
+
+| **Program library** | **Installed Version** |
+| ------------------- | --------------------- |
+| Sqlite	            | v3.24.0               |
+| lxml	              | v4.2.4.0              |
+| Image Magick	      | ImageMagick 6.9.10-10 Q16 x86_64 2018-08-15 https://www.imagemagick.org |
+| kindlegen	          | Amazon kindlegen(Linux) V2.9 build 1028-0897292 |
+| Flask	              | v1.0.2                |
+| Babel	              | v2.6.0                |
+| PyPdf	              | v1.26.0               |
+| pySqlite	          | v2.6.0                |
+| Python	            | 2.7.15 (default, May 10 2018, 21:00:22) [GCC 6.4.0] |
+| Sqlalchemy	        | v1.2.10               |
+| Iso 639	            | v0.4.5                |
+| Gevent	            | v1.3.5                |
+| Requests	          | v2.19.1               |
+| Flask Login	        | v0.4.1                |
+| Flask Principal	    | v0.4.0                |
+
 **2018-04-14 - v1.1.11**
  
  * exposed additional directories (see ticket #24)
@@ -84,7 +134,7 @@ technosoft2000/calibre-web
 
 **2017-06-03 - v1.1.3**
 
- * new base image [technosoft2000/alpine-base:3.6-2](https://hub.docker.com/r/technosoft2000/alpine-base/))
+ * new base image [technosoft2000/alpine-base:3.6-2](https://hub.docker.com/r/technosoft2000/alpine-base/)
  * new version allows now usage of group id's __PGID__ < 1000
  * added check of write permissions at `/books` to know if symlinks can be created
 

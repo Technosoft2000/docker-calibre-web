@@ -6,6 +6,9 @@
 # see at https://github.com/janeczku/calibre-web/
 source /init/checkout.sh "$APP_NAME" "$APP_BRANCH" "$APP_REPO" "$APP_HOME/app"
 
+# change owner of /opt
+chown -R $PUSER:$PGROUP /opt
+
 # check if a config directory should be used
 if [ "$USE_CONFIG_DIR" = "true" ]; then
     CONFIG_DIR="$APP_HOME/config"

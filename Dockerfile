@@ -1,8 +1,8 @@
-FROM technosoft2000/alpine-base:3.6-3
+FROM technosoft2000/alpine-base:3.8-1
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.1.11" \
+LABEL image.version="1.2.0" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2018-04-14" \
+      image.date="2018-08-15" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
@@ -10,8 +10,11 @@ LABEL image.version="1.1.11" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.1.11" \
+    VERSION="1.2.0" \
     
+    # - LANG: set C.UTF-8 locale as default system language
+    LANG="C.UTF-8" \
+
     # - PUSER, PGROUP: the APP user and group name
     PUSER="calibre" \
 	PGROUP="calibre" \
@@ -27,7 +30,7 @@ ENV \
     APP_REPO="https://github.com/janeczku/calibre-web.git" \
     APP_BRANCH="master" \
 
-    # - AMAZON_KG_*: KindleGen is a command line tool which enables publishers to work 
+    # - AMAZON_KG_*: KindleGen is a command line tool which enables publishers to work
     # in an automated environment with a variety of source content including HTML, XHTML or EPUB
     AMAZON_KG_TAR="kindlegen_linux_2.6_i386_v2_9.tar.gz" \
     AMAZON_KG_URL="http://kindlegen.s3.amazonaws.com/kindlegen_linux_2.6_i386_v2_9.tar.gz" \
@@ -52,11 +55,52 @@ ENV \
     # see at: http://e-mats.org/2017/04/imagemagick-magickwand-under-alphine-linux-python-alpine/
     MAGICK_HOME="/usr"
 
+# Install GNU libc (aka glibc)
+# https://github.com/sgerrand/alpine-pkg-glibc
 RUN \
+
+    ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
+    ALPINE_GLIBC_PACKAGE_VERSION="2.28-r0" && \
+    ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
+    ALPINE_GLIBC_BIN_PACKAGE_FILENAME="glibc-bin-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
+    ALPINE_GLIBC_I18N_PACKAGE_FILENAME="glibc-i18n-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
+
     # create temporary directories
     mkdir -p /tmp && \
     mkdir -p /var/cache/apk && \
 
+    apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
+    
+    wget \
+        "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" \
+        -O "/etc/apk/keys/sgerrand.rsa.pub" && \
+    
+    wget \
+        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
+    
+    apk add --no-cache \
+        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
+
+    rm "/etc/apk/keys/sgerrand.rsa.pub" && \
+    /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true && \
+    echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
+    
+    apk del glibc-i18n && \
+    
+    rm "/root/.wget-hsts" && \
+
+    apk del .build-dependencies && \
+
+    rm \
+        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
+
+RUN \
     # update the package list
     apk -U upgrade && \
 
@@ -64,20 +108,51 @@ RUN \
     apk -U add --no-cache $PKG_DEV $PKG_PYTHON $PKG_IMAGES_DEV $PKG_IMAGES && \
 
     # install additional python packages:
+    pip --no-cache-dir install --upgrade \
+      pip setuptools pyopenssl \
     ### REQUIRED ###
     ### see https://github.com/janeczku/calibre-web/blob/master/requirements.txt
-    pip --no-cache-dir install --upgrade \
-      pip setuptools \
-      pyopenssl Babel \
-      Flask Flask-Babel Flask-Login Flask-Principal \
-      iso-639 PyPDF2 pytz requests \
-      SQLAlchemy tornado Wand unidecode \
+      Babel \
+      Flask-Babel \
+      Flask-Login \
+      Flask-Principal \
+      singledispatch \
+      backports_abc \
+      Flask \
+      iso-639 \
+      PyPDF2 \
+      pytz \
+      requests \
+      SQLAlchemy \
+      tornado \
+      Wand \
+      unidecode \
     ### OPTIONAL ###
     ### https://github.com/janeczku/calibre-web/blob/master/optional-requirements.txt
-      gevent google-api-python-client greenlet \
-      httplib2 lxml oauth2client \
-      pyasn1-modules pyasn1 pydrive pyyaml \
-      rsa six uritemplate goodreads python-Levenshtein\
+      # GDrive Integration
+      google-api-python-client \
+      gevent \
+      greenlet \
+      httplib2 \
+      oauth2client \
+      uritemplate \
+      pyasn1-modules \
+      pyasn1 \
+      PyDrive \
+      PyYAML \
+      rsa \
+      six \
+      # goodreads  
+      goodreads \
+      python-Levenshtein \
+      # other
+      lxml \
+    ### ENHANCEMENT ###
+    ### from jim3ma/docker-calibre-web
+    ### needed for calibre ebook-convert command line tool
+    ### https://github.com/jim3ma/docker-calibre-web/commit/57239b65e8ccd011dc8e9ed6a731571786e12e01
+    ### https://manual.calibre-ebook.com/generated/en/ebook-convert.html
+      Flask-Dance \
       && \
 
     # get actual ImageMagic 6 version info
@@ -119,7 +194,32 @@ RUN \
 
     # install ImageMagic
     make install && \
-    find / -name '.packlist' -o -name 'perllocal.pod' -o -name '*.bs' -delete && \
+    find / -name '.packlist' -o -name 'perllocal.pod' -o -name '*.bs' -delete
+
+# Install calibre binary
+# enhancement from jim3ma/docker-calibre-web
+# needed for calibre ebook-convert command line tool
+# https://github.com/jim3ma/docker-calibre-web
+# https://manual.calibre-ebook.com/generated/en/ebook-convert.html
+ENV \
+    LD_LIBRARY_PATH="/usr/lib:/opt/calibre/lib" \
+    PATH="$PATH:/opt/calibre/bin" \
+    LC_ALL="C" \
+    CALIBRE_INSTALLER_SOURCE_CODE_URL="https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py"
+
+RUN apk update && \
+    apk add --no-cache --upgrade \
+    bash \
+    ca-certificates \
+    gcc \
+    mesa-gl \
+    python \
+    qt5-qtbase-x11 \
+    xdg-utils \
+    xz \
+    wget && \
+    wget -O- ${CALIBRE_INSTALLER_SOURCE_CODE_URL} | python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main(install_dir='/opt', isolated=True)" && \
+    rm -rf /tmp/calibre-installer-cache && \
 
     # remove not needed packages
     apk del --purge $PKG_DEV \
