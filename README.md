@@ -38,6 +38,21 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
+**2018-08-21 - v1.2.1**
+
+ * fixed issue that the execution of Calibre's `ebook-convert` didn't worked correct,
+   therefore changed the internal Calibre path from `/opt/calibre/bin` to `/opt/calibre`;
+   thanks to @bodybybuddha and @adocampo for testing and finding a solution for this issue;
+   see for details at issue #28 **Integrate ebook-converter (calibre binaries)**
+ * @OzzieIsaacs will provide in the near future a fix of `worker.py` so that the call of `ebook-convert`
+   works sucessfully from the Calibre-Web UI too, thanks
+ * **Important:** 
+   at **Admin** -> **Basic Configuration** -> **E-Book converter** you've to set the converter which you want to use:
+   - for the option **Use Kindlegen** set the **Path to convertertool** to `/calibre-web/app/vendor/kindlegen`
+     and at **About** you will see then `kindlegen	Amazon kindlegen(Linux) V2.9 build 1028-0897292`
+   - for the option **Use calibre's ebook converter** set the **Path to convertertool** to `/opt/calibre/ebook-convert`
+     and at **About** you will see then `Calibre converter	ebook-convert (calibre 3.29.0)`
+
 **2018-08-15 - v1.2.0**
 
  * new base image [technosoft2000/alpine-base:3.8-1](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.8
