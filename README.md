@@ -38,52 +38,18 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
-**2018-08-21 - v1.2.1**
+**2018-08-28 - v1.2.2**
 
- * fixed issue that the execution of Calibre's `ebook-convert` didn't worked correct,
-   therefore changed the internal Calibre path from `/opt/calibre/bin` to `/opt/calibre`;
-   thanks to @bodybybuddha and @adocampo for testing and finding a solution for this issue;
-   see for details at issue #28 **Integrate ebook-converter (calibre binaries)**
- * @OzzieIsaacs will provide in the near future a fix of `worker.py` so that the call of `ebook-convert`
-   works sucessfully from the Calibre-Web UI too, thanks
- * **Important:** 
-   at **Admin** -> **Basic Configuration** -> **E-Book converter** you've to set the converter which you want to use:
-   - for the option **Use Kindlegen** set the **Path to convertertool** to `/calibre-web/app/vendor/kindlegen`
-     and at **About** you will see then `kindlegen	Amazon kindlegen(Linux) V2.9 build 1028-0897292`
-   - for the option **Use calibre's ebook converter** set the **Path to convertertool** to `/opt/calibre/ebook-convert`
-     and at **About** you will see then `Calibre converter	ebook-convert (calibre 3.29.0)`
-
-**2018-08-15 - v1.2.0**
-
- * new base image [technosoft2000/alpine-base:3.8-1](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.8
- * integrated Alpine **glibc v2.28-r0** for original Calibre
- * integrated enhancements from [jim3ma/docker-calibre-web](https://github.com/jim3ma/docker-calibre-web) needed for calibre **ebook-convert** command line tool
- * **Important:** 
-   at **Admin** -> **Basic Configuration** -> **E-Book converter** you've to set the converter which you want to use:
-   - for the option **Use Kindlegen** set the **Path to convertertool** to `/calibre-web/app/vendor/kindlegen`
-     and at **About** you will see then `kindlegen	Amazon kindlegen(Linux) V2.9 build 1028-0897292`
-   - for the option **Use calibre's ebook converter** set the **Path to convertertool** to `/opt/calibre/bin/ebook-convert`
-     and at **About** you will see then `Calibre converter	ebook-convert (calibre 3.29.0)`
- * **Known issue:**
-   if you map the old/existing app volume like `-v /volume1/docker/apps/calibre-web/app:/calibre-web/app`
-   then you'll get the following issue at startup
-
-```
-[INFO] Checkout the latest Calibre-Web version ...
-[INFO] Autoupdate is active, try to pull the latest sources for Calibre-Web ...
-[INFO] ... current git status is
-fatal: not a git repository (or any parent up to mount point /calibre-web)
-Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
-[INFO] ... pulling sources
-fatal: not a git repository (or any parent up to mount point /calibre-web)
-Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
-[INFO] ... git status after update is
-fatal: not a git repository (or any parent up to mount point /calibre-web)
-Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
-```
-
-   To solve the issue delete the old files at `-v /volume1/docker/apps/calibre-web/app:/calibre-web/app`
-   before you create and start the container.
+ * glibc locale are generated now for the following definitions: [availaible locale](LOCALE.md).
+ * fixed issue **ebook-convert : Error: unsupported locale setting** #34
+ * updated README.md with new sections:
+   - Configuration of a converter
+   - Known issues
+   - Container Locale
+ * Updated Libraries
+  - Sqlalchemy	v1.2.10 => v1.2.11
+  - Calibre converter	ebook-convert (calibre 3.29.0) => (calibre 3.30.0)
+  - Gevent	v1.3.5 => v1.3.6
 
 | **Program library** | **Installed Version** |
 | ------------------- | --------------------- |
@@ -96,9 +62,10 @@ Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
 | PyPdf	              | v1.26.0               |
 | pySqlite	          | v2.6.0                |
 | Python	            | 2.7.15 (default, May 10 2018, 21:00:22) [GCC 6.4.0] |
-| Sqlalchemy	        | v1.2.10               |
+| Sqlalchemy	        | v1.2.11               |
 | Iso 639	            | v0.4.5                |
-| Gevent	            | v1.3.5                |
+| Calibre converter	  | ebook-convert (calibre 3.30.0) |
+| Gevent	            | v1.3.6                |
 | Requests	          | v2.19.1               |
 | Flask Login	        | v0.4.1                |
 | Flask Principal	    | v0.4.0                |
@@ -113,6 +80,7 @@ For previous changes see at [full changelog](CHANGELOG.md).
  * Google Drive integration is included
  * creation of gdrive.db symlink at `/books/gdrive.db` for external access like backup possibility
  * creation of app.db symlink at `/books/app.db` for external access like backup possibility
+ * support of **Amazon kindlegen** and **Calibre ebook-convert** tool to convert to MOBI
 
 ## Hints & Tips ##
  
@@ -134,6 +102,34 @@ Default admin login:
 After successful login change the default password and set the email adress.
 
 To access the OPDS catalog feed, point your Ebook Reader to `http://hostname:<HTTP PORT>/opds`
+
+## Configuration of a converter ##
+   at **Admin** -> **Basic Configuration** -> **E-Book converter** you've to set the converter which you want to use:
+   - for the option **Use Kindlegen** set the **Path to convertertool** to `/calibre-web/app/vendor/kindlegen`
+     and at **About** you will see then `kindlegen	Amazon kindlegen(Linux) V2.9 build 1028-0897292`
+   - for the option **Use calibre's ebook converter** set the **Path to convertertool** to `/opt/calibre/bin/ebook-convert`
+     and at **About** you will see then `Calibre converter	ebook-convert (calibre 3.29.0)`
+
+## Known issue ##
+1. if you map the old/existing app volume like `-v /volume1/docker/apps/calibre-web/app:/calibre-web/app`
+   then you'll get the following issue at startup
+
+```
+[INFO] Checkout the latest Calibre-Web version ...
+[INFO] Autoupdate is active, try to pull the latest sources for Calibre-Web ...
+[INFO] ... current git status is
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+[INFO] ... pulling sources
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+[INFO] ... git status after update is
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+```
+
+   To solve the issue delete the old files at `-v /volume1/docker/apps/calibre-web/app:/calibre-web/app`
+   before you create and start the container.
 
 ## Usage ##
 
@@ -228,6 +224,129 @@ Once the container is running you can get all possible timezones as tree via the
 See also at [possible timezone values](TIMEZONES.md).
 
 __Don't use the value__ `localtime` because it results into: `failed to access '/etc/localtime': Too many levels of symbolic links`
+
+### Container Locale
+
+By default the container comes with the following locale environment setting:
+
+```
+    # - LANG, LANGUAGE, LC_ALL: language dependent settings (Default: en_US.UTF-8)
+    LANG="en_US.UTF-8"
+    LANGUAGE="en_US.UTF-8"
+    LC_ALL="en_US.UTF-8"
+``` 
+
+To set a different locale set the corressponding environment settings while container creation via `-e LANG`, `-e LANGUAGE`, `-e LC_ALL`.
+Look here at [availaible locale](LOCALE.md) which values are supported - e.g. for **de_DE** you've to use then **de_DE.UTF-8** as value,
+here an example `-e LANG=de_DE.UTF-8`.
+
+To check what locale is active inside the container:
+```
+root@NAS:~# docker exec -it calibre-web bash
+
+bash-4.4# echo $LANG $LANGUAGE $LC_ALL
+en_US.UTF-8 en_US.UTF-8 C
+```
+
+When you execute the `ebook-convert` tool inside the container you'll get a translated output according to the active locale:
+
+```
+bash-4.4# ebook-convert 
+Usage: ebook-convert input_file output_file [options]
+
+Convert an e-book from one format to another.
+
+input_file is the input and output_file is the output. Both must be specified as the first two arguments to the command.
+
+The output e-book format is guessed from the file extension of output_file. output_file can also be of the special format .EXT where EXT is the output file extension. In this cas
+e, the name of the output file is derived from the name of the input file. Note that the filenames must not start with a hyphen. Finally, if output_file has no extension, then it
+ is treated as a directory and an "open e-book" (OEB) consisting of HTML files is written to that directory. These files are the files that would normally have been passed to the
+ output plugin.
+
+After specifying the input and output file you can customize the conversion by specifying various options. The available options depend on the input and output file types. To get
+ help on them specify the input and output file and then use the -h option.
+
+For full documentation of the conversion system see
+https://manual.calibre-ebook.com/conversion.html
+
+Whenever you pass arguments to ebook-convert that have spaces in them, enclose the arguments in quotation marks. For example: "/some path/with spaces"
+
+Options:
+  --version       show program's version number and exit
+
+  -h, --help      show this help message and exit
+
+  --list-recipes  List builtin recipe names. You can create an e-book from a
+                  builtin recipe like this: ebook-convert "Recipe Name.recipe"
+                  output.epub
+
+
+Created by Kovid Goyal <kovid@kovidgoyal.net>
+bash-4.4#
+```
+
+After change to e.g. **de_DE.UTF-8** you'll see the following translated output:
+
+```
+bash-4.4# export LANG=de_DE.UTF-8; LANGUAGE=de_DE.UTF-8; LC_ALL=de_DE.UTF-8
+bash-4.4# echo $LANG $LANGUAGE $LC_ALL
+de_DE.UTF-8 de_DE.UTF-8 de_DE.UTF-8
+
+bash-4.4# ebook-convert 
+Verwendung: ebook-convert Quelldatei Ausgabedatei [Optionen]
+
+Ein eBook von einem Format in ein anderes konvertieren.
+
+Quelldatei ist die Eingabe, Ausgabedatei die Ausgabe. Beide müssen dem Befehl als die ersten beiden Argumente übergeben werden.
+
+Das Zielformat wird durch die Dateiendung von Ausgabedatei bestimmt. Ausgabedatei kann auch das Spezialformat .EXT besitzen, wobei EXT die gewünschte Dateinamenerweiterung ist. I
+n diesem Fall wird der Name der Ausgabedatei aus dem Namen der Quelldatei abgeleitet. Bitte beachten: Die Dateinamen dürfen nicht mit einem Bindestrich beginnen. Zu guter Letzt, 
+falls Ausgabedatei keine Dateinamenerweiterung besitzt, wird der Name als Verzeichnis behandelt, und ein "open ebook" (OEB), das aus HTML-Dateien besteht, wird in dieses Verzeich
+nis geschrieben. Diese Dateien sind jene, die normalerweise an die Ausgabe-Erweiterung übergeben würden.
+
+Nach der Angabe von Quell- und Ausgabedatei kann die Konvertierung noch durch die Angabe verschiedener Optionen angepasst werden.  Welche Optionen hier zur Verfügung stehen, häng
+t von den Dateitypen der Quell- und Ausgabedateien ab.  Um dazu Hilfe zu erhalten, geben Sie die Quell- und Ausgabedatei gefolgt von der Option -h an.
+
+Die komplette Dokumentation des Konvertierungssystems findet sich unter
+https://manual.calibre-ebook.com/de/conversion.html
+
+Wann immer Sie Argumente mit Leerzeichen an ebook-convert weitergeben, müssen diese Argumente in Anführungsstriche gesetzt werden. Zum Beispiel: "/some path/with spaces"
+
+Optionen:
+  --version       Programmversion anzeigen und beenden
+
+  -h, --help      Diesen Hilfetext anzeigen und beenden.
+
+  --list-recipes  Anzeigen der Namen der integrierten Nachrichtenquellen. Sie
+                  können aus einer integrierten Quelle ein eBook wie folgt
+                  erstellen: ebook-convert "Recipe Name.recipe" output.epub
+
+
+Erstellt von Kovid Goyal <kovid@kovidgoyal.net>
+bash-4.4#
+```
+
+To check which locale are supported execute the following command:
+
+```
+bash-4.4# /usr/glibc-compat/bin/locale -a
+
+C
+POSIX
+aa_DJ.utf8
+aa_ER.utf8
+aa_ET.utf8
+af_ZA.utf8
+am_ET.utf8
+an_ES.utf8
+ar_AE.utf8
+ar_BH.utf8
+ar_DZ.utf8
+ar_EG.utf8
+...
+
+bash-4.4#
+```
 
 ## User / Group Identifiers ##
 Sometimes when using data volumes (-v flags) permissions issues can arise between the host OS and the container. We avoid this issue by allowing you to specify the user PUID and group PGID. Ensure the data volume directory on the host is owned by the same user you specify and it will "just work" ™.

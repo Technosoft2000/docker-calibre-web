@@ -1,3 +1,35 @@
+**2018-08-28 - v1.2.2**
+
+ * glibc locale are generated now for the following definitions: [availaible locale](LOCALE.md).
+ * fixed issue **ebook-convert : Error: unsupported locale setting** #34
+ * updated README.md with new sections:
+   - Configuration of a converter
+   - Known issues
+   - Container Locale
+ * Updated Libraries
+  - Sqlalchemy	v1.2.10 => v1.2.11
+  - Calibre converter	ebook-convert (calibre 3.29.0) => (calibre 3.30.0)
+  - Gevent	v1.3.5 => v1.3.6
+
+| **Program library** | **Installed Version** |
+| ------------------- | --------------------- |
+| Sqlite	            | v3.24.0               |
+| lxml	              | v4.2.4.0              |
+| Image Magick	      | ImageMagick 6.9.10-10 Q16 x86_64 2018-08-15 https://www.imagemagick.org |
+| kindlegen	          | Amazon kindlegen(Linux) V2.9 build 1028-0897292 |
+| Flask	              | v1.0.2                |
+| Babel	              | v2.6.0                |
+| PyPdf	              | v1.26.0               |
+| pySqlite	          | v2.6.0                |
+| Python	            | 2.7.15 (default, May 10 2018, 21:00:22) [GCC 6.4.0] |
+| Sqlalchemy	        | v1.2.11               |
+| Iso 639	            | v0.4.5                |
+| Calibre converter	  | ebook-convert (calibre 3.30.0) |
+| Gevent	            | v1.3.6                |
+| Requests	          | v2.19.1               |
+| Flask Login	        | v0.4.1                |
+| Flask Principal	    | v0.4.0                |
+
 **2018-08-21 - v1.2.1**
 
  * fixed issue that the execution of Calibre's `ebook-convert` didn't worked correct,

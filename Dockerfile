@@ -1,8 +1,8 @@
 FROM technosoft2000/alpine-base:3.8-1
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.2.1" \
+LABEL image.version="1.2.2" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2018-08-21" \
+      image.date="2018-08-28" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
@@ -10,10 +10,12 @@ LABEL image.version="1.2.1" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.2.1" \
+    VERSION="1.2.2" \
     
-    # - LANG: set C.UTF-8 locale as default system language
-    LANG="C.UTF-8" \
+    # - LANG, LANGUAGE, LC_ALL: language dependent settings (Default: en_US.UTF-8)
+    LANG="en_US.UTF-8" \
+    LANGUAGE="en_US.UTF-8" \
+    LC_ALL="en_US.UTF-8" \
 
     # - PUSER, PGROUP: the APP user and group name
     PUSER="calibre" \
@@ -57,6 +59,7 @@ ENV \
 
 # Install GNU libc (aka glibc)
 # https://github.com/sgerrand/alpine-pkg-glibc
+COPY LOCALE.md /init/
 RUN \
 
     ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
@@ -70,35 +73,32 @@ RUN \
     mkdir -p /var/cache/apk && \
 
     apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
+    apk add --no-cache parallel && \
     
-    wget \
-        "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" \
-        -O "/etc/apk/keys/sgerrand.rsa.pub" && \
+    wget "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" \
+         -O "/etc/apk/keys/sgerrand.rsa.pub" && \
     
-    wget \
-        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
+    wget "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
+         "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
+         "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
     
     apk add --no-cache \
         "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
         "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
         "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
 
-    rm "/etc/apk/keys/sgerrand.rsa.pub" && \
-    /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true && \
-    echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
-    
-    apk del glibc-i18n && \
-    
-    rm "/root/.wget-hsts" && \
+    # iterate through all locale and install it
+    # NOTE: locale -a is not available in alpine linux, 
+    # use `/usr/glibc-compat/bin/locale -a` instead
+    cat /init/LOCALE.md | parallel "echo generate locale {}; /usr/glibc-compat/bin/localedef --force --inputfile {} --charmap UTF-8 {}.UTF-8;" && \
 
     apk del .build-dependencies && \
 
-    rm \
-        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
+    rm "/etc/apk/keys/sgerrand.rsa.pub" && \
+    rm "/root/.wget-hsts" && \
+    rm "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
+       "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
+       "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
 
 RUN \
     # update the package list
