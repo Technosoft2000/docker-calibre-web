@@ -107,8 +107,8 @@ To access the OPDS catalog feed, point your Ebook Reader to `http://hostname:<HT
    at **Admin** -> **Basic Configuration** -> **E-Book converter** you've to set the converter which you want to use:
    - for the option **Use Kindlegen** set the **Path to convertertool** to `/calibre-web/app/vendor/kindlegen`
      and at **About** you will see then `kindlegen	Amazon kindlegen(Linux) V2.9 build 1028-0897292`
-   - for the option **Use calibre's ebook converter** set the **Path to convertertool** to `/opt/calibre/bin/ebook-convert`
-     and at **About** you will see then `Calibre converter	ebook-convert (calibre 3.29.0)`
+   - for the option **Use calibre's ebook converter** set the **Path to convertertool** to `/opt/calibre/ebook-convert`
+     and at **About** you will see then `Calibre converter	ebook-convert (calibre 3.30.0)`
 
 ## Known issue ##
 1. if you map the old/existing app volume like `-v /volume1/docker/apps/calibre-web/app:/calibre-web/app`
