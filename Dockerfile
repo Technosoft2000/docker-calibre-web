@@ -1,8 +1,8 @@
 FROM technosoft2000/alpine-base:3.8-1
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.2.2" \
+LABEL image.version="1.2.3" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2018-08-28" \
+      image.date="2018-09-09" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
@@ -10,8 +10,8 @@ LABEL image.version="1.2.2" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.2.2" \
-    
+    VERSION="1.2.3" \
+
     # - LANG, LANGUAGE, LC_ALL: language dependent settings (Default: en_US.UTF-8)
     LANG="en_US.UTF-8" \
     LANGUAGE="en_US.UTF-8" \
@@ -39,7 +39,7 @@ ENV \
 
     # - CALIBRE_PATH: Configure the path where the Calibre database is located
     CALIBRE_PATH="/books" \
-	
+
     # - PKG_*: the needed applications for installation
     PKG_DEV="make gcc g++ python-dev openssl-dev libffi-dev libxml2-dev libxslt-dev" \
     PKG_PYTHON="ca-certificates py-pip python py-libxml2 py-libxslt py-lxml libev" \
@@ -74,14 +74,14 @@ RUN \
 
     apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
     apk add --no-cache parallel && \
-    
+
     wget "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" \
          -O "/etc/apk/keys/sgerrand.rsa.pub" && \
-    
+
     wget "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
          "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
          "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
-    
+
     apk add --no-cache \
         "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
         "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
@@ -207,18 +207,27 @@ ENV \
     LC_ALL="C" \
     CALIBRE_INSTALLER_SOURCE_CODE_URL="https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py"
 
-RUN apk update && \
+RUN \
+    apk update && \
     apk add --no-cache --upgrade \
-    bash \
-    ca-certificates \
-    gcc \
-    mesa-gl \
-    python \
-    qt5-qtbase-x11 \
-    xdg-utils \
-    xz \
-    wget && \
-    wget -O- ${CALIBRE_INSTALLER_SOURCE_CODE_URL} | python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main(install_dir='/opt', isolated=True)" && \
+        bash \
+        ca-certificates \
+        gcc \
+        libxcomposite \
+        mesa-gl \
+        python \
+        qt5-qtbase-x11 \
+        xdg-utils \
+        xz \
+        wget && \
+
+    wget -O- ${CALIBRE_INSTALLER_SOURCE_CODE_URL} | \
+      python -c \
+      "import sys; \
+       main=lambda:sys.stderr.write('Download failed\n'); \
+       exec(sys.stdin.read()); \
+       main(install_dir='/opt', isolated=True)" && \
+
     rm -rf /tmp/calibre-installer-cache && \
 
     # remove not needed packages

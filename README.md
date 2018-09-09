@@ -38,18 +38,10 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
-**2018-08-28 - v1.2.2**
-
- * glibc locale are generated now for the following definitions: [availaible locale](LOCALE.md).
- * fixed issue **ebook-convert : Error: unsupported locale setting** #34
- * updated README.md with new sections:
-   - Configuration of a converter
-   - Known issues
-   - Container Locale
+**2018-09-09 - v1.2.3**
+ * added missing dependency **libxcomposite** which is needed for PDF related conversions via `ebook-convert`
  * Updated Libraries
-  - Sqlalchemy	v1.2.10 => v1.2.11
-  - Calibre converter	ebook-convert (calibre 3.29.0) => (calibre 3.30.0)
-  - Gevent	v1.3.5 => v1.3.6
+  - Calibre converter	ebook-convert (calibre 3.30.0) => (calibre 3.31.0)
 
 | **Program library** | **Installed Version** |
 | ------------------- | --------------------- |
@@ -64,11 +56,15 @@ And if you are interested in the original __Calibre__ ebook management tool then
 | Python	            | 2.7.15 (default, May 10 2018, 21:00:22) [GCC 6.4.0] |
 | Sqlalchemy	        | v1.2.11               |
 | Iso 639	            | v0.4.5                |
-| Calibre converter	  | ebook-convert (calibre 3.30.0) |
-| Gevent	            | v1.3.6                |
+| Calibre converter	  | ebook-convert (calibre 3.31.0) |
 | Requests	          | v2.19.1               |
+| Gevent	            | v1.3.6                |
 | Flask Login	        | v0.4.1                |
 | Flask Principal	    | v0.4.0                |
+
+* `ebook-convert` supports the following target formats: 
+  **EPUB, AZW3, MOBI, DOCX, FB2, HTMLZ, LIT, LRF, PDB, PDF, PMLZ, RB, RTF, SNB, TCR, TXT, TXTZ, ZIP**
+  see also at https://manual.calibre-ebook.com/generated/en/ebook-convert.html
 
 For previous changes see at [full changelog](CHANGELOG.md).
 
