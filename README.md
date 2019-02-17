@@ -38,33 +38,37 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
-**2018-09-09 - v1.2.3**
- * added missing dependency **libxcomposite** which is needed for PDF related conversions via `ebook-convert`
+**2019-02-17 - v1.3.0**
+
+ * new base image [technosoft2000/alpine-base:3.9-1](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.9
+ * Patched for ImageMagick 6 the `policy.xml` with ```<policy domain="coder" rights="read" pattern="PDF" />```
+   as described at issue [#789 Uploading PDF results in Calibre Web restarting [Docker]](https://github.com/janeczku/calibre-web/issues/789#issuecomment-462038341)
+ * check `policy.xml` with ```docker exec -it calibre-web cat /etc/ImageMagick-6/policy.xml```
  * Updated Libraries
-  - Calibre converter	ebook-convert (calibre 3.30.0) => (calibre 3.31.0)
+  - Calibre converter	ebook-convert (calibre 3.31.0) => (calibre 3.39.1)
 
 | **Program library** | **Installed Version** |
 | ------------------- | --------------------- |
-| Sqlite	            | v3.24.0               |
-| lxml	              | v4.2.4.0              |
-| Image Magick	      | ImageMagick 6.9.10-10 Q16 x86_64 2018-08-15 https://www.imagemagick.org |
+| Sqlite	            | v3.26.0               |
+| lxml	              | v4.3.1.0              |
+| Requests	          | v2.21.0               |
+| Image Magick	      | ImageMagick 6.9.10-10 Q16 x86_64 2019-02-17 https://www.imagemagick.org |
 | kindlegen	          | Amazon kindlegen(Linux) V2.9 build 1028-0897292 |
 | Flask	              | v1.0.2                |
 | Babel	              | v2.6.0                |
+| pytz                | v2018.9               |
 | PyPdf	              | v1.26.0               |
 | pySqlite	          | v2.6.0                |
-| Python	            | 2.7.15 (default, May 10 2018, 21:00:22) [GCC 6.4.0] |
-| Sqlalchemy	        | v1.2.11               |
 | Iso 639	            | v0.4.5                |
-| Calibre converter	  | ebook-convert (calibre 3.31.0) |
-| Requests	          | v2.19.1               |
-| Gevent	            | v1.3.6                |
+| Python	            | 2.7.15 (default, Jan 24 2019, 16:32:39) [GCC 8.2.0] |
+| Sqlalchemy	        | v1.2.18               |
+| Jinja2              | v2.10                 |
+| Wand Version	      | 0.5.1                 |
+| Calibre converter	  | ebook-convert (calibre 3.39.1) |
+| Werkzeug	          | v0.14.1               |
+| Gevent	            | v1.4.0                |
 | Flask Login	        | v0.4.1                |
 | Flask Principal	    | v0.4.0                |
-
-* `ebook-convert` supports the following target formats: 
-  **EPUB, AZW3, MOBI, DOCX, FB2, HTMLZ, LIT, LRF, PDB, PDF, PMLZ, RB, RTF, SNB, TCR, TXT, TXTZ, ZIP**
-  see also at https://manual.calibre-ebook.com/generated/en/ebook-convert.html
 
 For previous changes see at [full changelog](CHANGELOG.md).
 
@@ -477,34 +481,29 @@ docker logs -f calibre-web
                         ;   | .'      '--'       
                         `---'                    
       PRESENTS ANOTHER AWESOME DOCKER IMAGE
-      ~~~~~         Calibre Web       ~~~~~                          
-[INFO] Docker image version: 1.2.0
-[INFO] Alpine Linux version: 3.8.0
+      ~~~~~         Calibre Web       ~~~~~
+[INFO] Docker image version: 1.3.0
+[INFO] Alpine Linux version: 3.9.0
 [WARNING] A group with id 100 exists already [in use by users] and will be modified.
 [WARNING] The group users will be renamed to calibre
 [INFO] Create user calibre with id 1029
 [INFO] Current active timezone is UTC
-Wed Aug 15 21:37:35 CEST 2018
+Sun Feb 17 10:43:25 CET 2019
 [INFO] Container timezone is changed to: Europe/Vienna
 [INFO] Change the ownership of /calibre-web (including subfolders) to calibre:calibre
 [INFO] Current git version is:
-git version 2.18.0
+git version 2.20.1
 [INFO] Checkout the latest Calibre-Web version ...
-[INFO] ... git clone -b master --single-branch https://github.com/janeczku/calibre-web.git /calibre-web/app -v
-Cloning into '/calibre-web/app'...
-POST git-upload-pack (189 bytes)
 [INFO] Autoupdate is active, try to pull the latest sources for Calibre-Web ...
 [INFO] ... current git status is
-On branch master
-Your branch is up to date with 'origin/master'.
-nothing to commit, working tree clean
-f8132f4d024b4801185572ca8ebc64b04b075b34
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
 [INFO] ... pulling sources
-Already up to date.
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
 [INFO] ... git status after update is
-On branch master
-Your branch is up to date with 'origin/master'.
-f8132f4d024b4801185572ca8ebc64b04b075b34
+fatal: not a git repository (or any parent up to mount point /calibre-web)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
 [INFO] Config directory option is ACTIVATED
 > due this the directory /calibre-web/config will be used to store the configuration
 [INFO] Change the ownership of /calibre-web/config (including subfolders) to calibre:calibre
@@ -512,14 +511,14 @@ f8132f4d024b4801185572ca8ebc64b04b075b34
 > Output is: 755 calibre 100 calibre 1029
 > Permissions: 755
 > Assigned group: calibre
+ln: failed to create symbolic link '/calibre-web/app/gdrive.db': File exists
 > Assigned group ID: 100
 > Assigned owner: calibre
 > Assigned owner ID: 1029
 > Using permissions for checks: 0755
 > The user calibre:1029 is the owner and has write access at /calibre-web/config
 [INFO] 'app.db' and 'gdrive.db' will be linked into /calibre-web/config
-> create 'app.db' link /calibre-web/app/app.db assigned to source /calibre-web/config/app.db
-> change the ownership of /calibre-web/app/app.db to calibre:calibre
+> 'app.db' link /calibre-web/app/app.db exists already and won't be recreated
 > create 'gdrive.db' link /calibre-web/app/gdrive.db assigned to source /calibre-web/config/gdrive.db
 > change the ownership of /calibre-web/app/gdrive.db to calibre:calibre
 [INFO] Checking permissions of the books directory: /books
@@ -535,13 +534,10 @@ f8132f4d024b4801185572ca8ebc64b04b075b34
 [INFO] The kindlegen directory exist already and will be used: /calibre-web/kindlegen
 [INFO] Kindlegen application exists already in directory: /calibre-web/kindlegen
 [INFO] kindlegen (Amazon Kindle Generator) will be linked into /calibre-web/app/vendor
-[INFO] Creating the vendor directory: /calibre-web/app/vendor
-[INFO] Change the ownership of /calibre-web/app/vendor (including subfolders) to calibre:calibre
-> create kindlegen link /calibre-web/app/vendor/kindlegen assigned to source /calibre-web/kindlegen/kindlegen
-> change the ownership of /calibre-web/app/vendor/kindlegen to calibre:calibre
+> kindlegen link /calibre-web/app/vendor/kindlegen exists already and won't be recreated
 [INFO] Creating directory for temporary directories and files: /tmp
 [INFO] Change the ownership of /tmp (including subfolders) to calibre:calibre
 [INFO] Launching Calibre-Web ...
-[2018-08-15 21:38:01,618] INFO in web: Starting Calibre Web...
-[2018-08-15 21:38:02,083] INFO in server: Starting Gevent server
+[2019-02-17 10:43:30,762] INFO in web: Starting Calibre Web...
+[2019-02-17 10:43:31,293] INFO in server: Starting Gevent server
 ```

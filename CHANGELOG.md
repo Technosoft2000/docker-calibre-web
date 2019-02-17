@@ -1,4 +1,37 @@
+**2019-02-17 - v1.3.0**
+
+ * new base image [technosoft2000/alpine-base:3.9-1](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.9
+ * Patched for ImageMagick 6 the `policy.xml` with ```<policy domain="coder" rights="read" pattern="PDF" />```
+   as described at issue [#789 Uploading PDF results in Calibre Web restarting [Docker]](https://github.com/janeczku/calibre-web/issues/789#issuecomment-462038341)
+ * check `policy.xml` with ```docker exec -it calibre-web cat /etc/ImageMagick-6/policy.xml```
+ * Updated Libraries
+  - Calibre converter	ebook-convert (calibre 3.31.0) => (calibre 3.39.1)
+
+| **Program library** | **Installed Version** |
+| ------------------- | --------------------- |
+| Sqlite	            | v3.26.0               |
+| lxml	              | v4.3.1.0              |
+| Requests	          | v2.21.0               |
+| Image Magick	      | ImageMagick 6.9.10-10 Q16 x86_64 2019-02-17 https://www.imagemagick.org |
+| kindlegen	          | Amazon kindlegen(Linux) V2.9 build 1028-0897292 |
+| Flask	              | v1.0.2                |
+| Babel	              | v2.6.0                |
+| pytz                | v2018.9               |
+| PyPdf	              | v1.26.0               |
+| pySqlite	          | v2.6.0                |
+| Iso 639	            | v0.4.5                |
+| Python	            | 2.7.15 (default, Jan 24 2019, 16:32:39) [GCC 8.2.0] |
+| Sqlalchemy	        | v1.2.18               |
+| Jinja2              | v2.10                 |
+| Wand Version	      | 0.5.1                 |
+| Calibre converter	  | ebook-convert (calibre 3.39.1) |
+| Werkzeug	          | v0.14.1               |
+| Gevent	            | v1.4.0                |
+| Flask Login	        | v0.4.1                |
+| Flask Principal	    | v0.4.0                |
+
 **2018-09-09 - v1.2.3**
+
  * added missing dependency **libxcomposite** which is needed for PDF related conversions via `ebook-convert`
  * Updated Libraries
   - Calibre converter	ebook-convert (calibre 3.30.0) => (calibre 3.31.0)

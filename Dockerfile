@@ -1,8 +1,8 @@
-FROM technosoft2000/alpine-base:3.8-1
+FROM technosoft2000/alpine-base:3.9-1
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.2.3" \
+LABEL image.version="1.3.0" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2018-09-09" \
+      image.date="2019-02-17" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
@@ -10,7 +10,7 @@ LABEL image.version="1.2.3" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.2.3" \
+    VERSION="1.3.0" \
 
     # - LANG, LANGUAGE, LC_ALL: language dependent settings (Default: en_US.UTF-8)
     LANG="en_US.UTF-8" \
@@ -107,9 +107,15 @@ RUN \
     # install the needed applications
     apk -U add --no-cache $PKG_DEV $PKG_PYTHON $PKG_IMAGES_DEV $PKG_IMAGES && \
 
+    # upgrade pip to the latest version
+    echo "--- Upgrade pip ------------------------------------------------------------" && \
+    pip install --upgrade pip && \
+
     # install additional python packages:
+    echo "--- Install python packages ------------------------------------------------" && \
     pip --no-cache-dir install --upgrade \
-      pip setuptools pyopenssl \
+      setuptools \
+      pyopenssl \
     ### REQUIRED ###
     ### see https://github.com/janeczku/calibre-web/blob/master/requirements.txt
       Babel \
@@ -250,6 +256,9 @@ COPY *.sh /init/
 
 # copy Calibre related files (e.g. metadata.db)
 COPY calibre-init /init/calibre-init
+
+# copy patched version of ImageMagick policy.xml
+COPY imagemagick/policy.xml /etc/ImageMagick-6
 
 # Set volumes for the Calibre Web folder structure
 VOLUME /books
