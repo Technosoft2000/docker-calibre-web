@@ -1,8 +1,8 @@
 FROM technosoft2000/alpine-base:3.9-1
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.3.0" \
+LABEL image.version="1.3.1" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2019-02-17" \
+      image.date="2019-02-24" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
@@ -10,7 +10,7 @@ LABEL image.version="1.3.0" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.3.0" \
+    VERSION="1.3.1" \
 
     # - LANG, LANGUAGE, LC_ALL: language dependent settings (Default: en_US.UTF-8)
     LANG="en_US.UTF-8" \
@@ -41,15 +41,23 @@ ENV \
     CALIBRE_PATH="/books" \
 
     # - PKG_*: the needed applications for installation
-    PKG_DEV="make gcc g++ python-dev openssl-dev libffi-dev libxml2-dev libxslt-dev" \
+    PKG_DEV="build-base python-dev openssl-dev libffi-dev libxml2-dev libxslt-dev" \
     PKG_PYTHON="ca-certificates py-pip python py-libxml2 py-libxslt py-lxml libev" \
     # WARNING: Wand supports only ImageMagick 6 at the moment and Alpine delivers already ImageMagick 7
     # PKG_IMAGES="imagemagick imagemagick-doc imagemagick-dev" \
     # need to build ImageMagick 6 from source
-    PKG_IMAGES_DEV="curl file fontconfig-dev freetype-dev ghostscript-dev lcms2-dev \
+    PKG_IMAGES_DEV="curl file fontconfig-dev freetype-dev lcms2-dev \
     libjpeg-turbo-dev libpng-dev libtool libwebp-dev perl-dev tiff-dev xz zlib-dev" \
-    PKG_IMAGES="fontconfig freetype ghostscript lcms2 libjpeg-turbo libltdl libpng \
-	libwebp libxml2 tiff zlib" \
+    PKG_IMAGES="fontconfig freetype lcms2 libjpeg-turbo libltdl libpng \
+    libwebp libxml2 tiff zlib" \
+    # WARNING: The current Ghosscript 9.26 has a bug which results into a SEGMENTATION FAULT
+    # and therefore we need to build our own Ghosscript 9.26 from source with additional patches
+    # PKG_IMAGES_DEV="ghostscript-dev"
+    # PKG_IMAGES="ghostscript"
+    PKG_GS_DEV="libjpeg-turbo-dev libpng-dev jasper-dev expat-dev \
+    zlib-dev tiff-dev freetype-dev lcms2-dev gtk+3.0-dev \
+    cups-dev libtool jbig2dec-dev openjpeg-dev" \
+    PKG_GS="jasper expat jbig2dec openjpeg" \
 
     # - MAGICK_HOME: the ImageMagick home especially for Wand
     # see at: http://docs.wand-py.org/en/latest/guide/install.html#explicit-link
@@ -100,19 +108,18 @@ RUN \
        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
 
+COPY ghostscript /init/ghostscript/
 RUN \
-    # update the package list
+    echo "--- Update the package list ------------------------------------------------" && \
     apk -U upgrade && \
 
-    # install the needed applications
-    apk -U add --no-cache $PKG_DEV $PKG_PYTHON $PKG_IMAGES_DEV $PKG_IMAGES && \
+    echo "--- Install applications via package manager -------------------------------" && \
+    apk -U add --no-cache $PKG_DEV $PKG_PYTHON $PKG_IMAGES_DEV $PKG_IMAGES $PKG_GS_DEV $PKG_GS && \
 
-    # upgrade pip to the latest version
-    echo "--- Upgrade pip ------------------------------------------------------------" && \
+    echo "--- Upgrade pip to the latest version --------------------------------------" && \
     pip install --upgrade pip && \
 
-    # install additional python packages:
-    echo "--- Install python packages ------------------------------------------------" && \
+    echo "--- Install python packages via pip ----------------------------------------" && \
     pip --no-cache-dir install --upgrade \
       setuptools \
       pyopenssl \
@@ -161,7 +168,36 @@ RUN \
       Flask-Dance \
       && \
 
-    # get actual ImageMagic 6 version info
+    ### Ghostscript ###
+    echo "--- Get Ghostscript 9.26 and build it --------------------------------------" && \
+
+    # create temporary build directory for Ghostscript
+    mkdir -p /tmp/ghostscript && \
+
+    # download Ghostscript
+    curl -o /tmp/ghostscript-src.tar.gz -L "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs926/ghostscript-9.26.tar.gz" && \
+
+    # unpack Ghostscript
+    tar xf /tmp/ghostscript-src.tar.gz -C /tmp/ghostscript --strip-components=1 && \
+
+    # patch & configure Ghostscript
+    cp /init/ghostscript/* /tmp/ghostscript && \
+    cd /tmp/ghostscript && \
+    patch cups/gdevcups.c fix-sprintf.patch && \
+    patch base/gdevsclass.c fix-put_image-methode.patch && \
+    patch base/stdio_.h fix-stdio.patch && \
+    patch base/lib.mak ghostscript-system-zlib.patch && \
+    ./configure && \
+
+    # compile Ghostscript
+    make so all && \
+
+    # install Ghostscript
+    make soinstall && \
+    make install && \
+
+    ### ImageMagic ###
+    echo "--- Get ImageMagic 6 and build it ------------------------------------------" && \
     IMAGEMAGICK_VER=$(curl --silent http://www.imagemagick.org/download/digest.rdf \
 	| grep ImageMagick-6.*tar.xz | sed 's/\(.*\).tar.*/\1/' | sed 's/^.*ImageMagick-/ImageMagick-/') && \
 
@@ -200,7 +236,10 @@ RUN \
 
     # install ImageMagic
     make install && \
-    find / -name '.packlist' -o -name 'perllocal.pod' -o -name '*.bs' -delete
+    find / -name '.packlist' -o -name 'perllocal.pod' -o -name '*.bs' -delete && \
+
+    # cleanup temporary files
+    rm -rf /tmp/* 
 
 # Install calibre binary
 # enhancement from jim3ma/docker-calibre-web

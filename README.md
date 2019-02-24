@@ -38,6 +38,12 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
+**2019-02-24 - v1.3.1**
+
+ * integrated a self compiled version of Ghostscript 9.26 with actual patches from
+   https://github.com/alpinelinux/aports/tree/8e262865b06f0d565f7c1ed0b4d8f43bf18b0d68/main/ghostscript
+ * should fix the issue [#789 Uploading PDF results in Calibre Web restarting [Docker]](https://github.com/janeczku/calibre-web/issues/789)
+
 **2019-02-17 - v1.3.0**
 
  * new base image [technosoft2000/alpine-base:3.9-1](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.9

@@ -1,0 +1,15 @@
+--- stdio_.h
++++ stdio_.h.patched
+@@ -84,9 +84,9 @@
+ /* only *really* required for floating point conversions */
+ #include "gssprintf.h"
+ 
+-#ifndef sprintf
+-#define sprintf DO_NOT_USE_SPRINTF
+-#endif
++//#ifndef sprintf
++//#define sprintf DO_NOT_USE_SPRINTF
++//#endif
+ 
+ 
+ #ifndef fopen
