@@ -1,3 +1,32 @@
+**2019-04-18 - v1.3.2**
+
+ * upgrade of [sgerrand/alpine-pkg-glibc](https://github.com/sgerrand/alpine-pkg-glibc) to version 2.29-r0
+ * merged pull request from @ariesdevil [#56 Add missing lib](https://github.com/Technosoft2000/docker-calibre-web/pull/56)
+ * Updated Libraries
+
+| **Program library** | **Installed Version** |
+| ------------------- | --------------------- |
+| Sqlite	            | v3.26.0               |
+| lxml	              | v4.3.3.0              |
+| Requests	          | v2.21.0               |
+| Image Magick	      | ImageMagick 6.9.10-10 Q16 x86_64 2019-04-18 https://www.imagemagick.org |
+| kindlegen	          | Amazon kindlegen(Linux) V2.9 build 1028-0897292 |
+| Flask	              | v1.0.2                |
+| Babel	              | v2.6.0                |
+| pytz                | v2019.1               |
+| PyPdf	              | v1.26.0               |
+| pySqlite	          | v2.6.0                |
+| Iso 639	            | v0.4.5                |
+| Python	            | 2.7.15 (default, Jan 24 2019, 16:32:39) [GCC 8.2.0] |
+| Sqlalchemy	        | v1.3.3                |
+| Jinja2              | v2.10.1               |
+| Wand Version	      | 0.5.2                 |
+| Calibre converter	  | ebook-convert (calibre 3.40.1) |
+| Werkzeug	          | v0.15.2               |
+| Gevent	            | v1.4.0                |
+| Flask Login	        | v0.4.1                |
+| Flask Principal	    | v0.4.0                |
+
 **2019-02-24 - v1.3.1**
 
  * integrated a self compiled version of Ghostscript 9.26 with actual patches from

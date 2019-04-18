@@ -2,7 +2,7 @@ FROM technosoft2000/alpine-base:3.9-1
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
 LABEL image.version="1.3.2" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2019-04-07" \
+      image.date="2019-04-18" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
