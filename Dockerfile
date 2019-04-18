@@ -140,6 +140,7 @@ RUN \
       tornado \
       Wand \
       unidecode \
+      Pillow \
     ### OPTIONAL ###
     ### https://github.com/janeczku/calibre-web/blob/master/optional-requirements.txt
       # GDrive Integration
