@@ -1,8 +1,8 @@
 FROM technosoft2000/alpine-base:3.9-1
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.3.1" \
+LABEL image.version="1.3.2" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2019-02-24" \
+      image.date="2019-04-07" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
@@ -10,7 +10,7 @@ LABEL image.version="1.3.1" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.3.1" \
+    VERSION="1.3.2" \
 
     # - LANG, LANGUAGE, LC_ALL: language dependent settings (Default: en_US.UTF-8)
     LANG="en_US.UTF-8" \
@@ -71,7 +71,7 @@ COPY LOCALE.md /init/
 RUN \
 
     ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
-    ALPINE_GLIBC_PACKAGE_VERSION="2.28-r0" && \
+    ALPINE_GLIBC_PACKAGE_VERSION="2.29-r0" && \
     ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
     ALPINE_GLIBC_BIN_PACKAGE_FILENAME="glibc-bin-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
     ALPINE_GLIBC_I18N_PACKAGE_FILENAME="glibc-i18n-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
