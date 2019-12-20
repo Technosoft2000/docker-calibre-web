@@ -1,8 +1,8 @@
 FROM technosoft2000/alpine-base:3.9-1
 MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.3.2" \
+LABEL image.version="1.3.3" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2019-04-18" \
+      image.date="2019-12-20" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web" \
       url.support="https://cytec.us/forum"
@@ -10,7 +10,7 @@ LABEL image.version="1.3.2" \
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.3.2" \
+    VERSION="1.3.3" \
 
     # - LANG, LANGUAGE, LC_ALL: language dependent settings (Default: en_US.UTF-8)
     LANG="en_US.UTF-8" \
@@ -41,8 +41,8 @@ ENV \
     CALIBRE_PATH="/books" \
 
     # - PKG_*: the needed applications for installation
-    PKG_DEV="build-base python-dev openssl-dev libffi-dev libxml2-dev libxslt-dev" \
-    PKG_PYTHON="ca-certificates py-pip python py-libxml2 py-libxslt py-lxml libev" \
+    PKG_DEV="build-base python-dev openssl-dev libffi-dev libxml2-dev libxslt-dev openldap-dev" \
+    PKG_PYTHON="ca-certificates py-pip python py-libxml2 py-libxslt py-lxml libev openldap" \
     # WARNING: Wand supports only ImageMagick 6 at the moment and Alpine delivers already ImageMagick 7
     # PKG_IMAGES="imagemagick imagemagick-doc imagemagick-dev" \
     # need to build ImageMagick 6 from source
@@ -50,20 +50,25 @@ ENV \
     libjpeg-turbo-dev libpng-dev libtool libwebp-dev perl-dev tiff-dev xz zlib-dev" \
     PKG_IMAGES="fontconfig freetype lcms2 libjpeg-turbo libltdl libpng \
     libwebp libxml2 tiff zlib" \
-    # WARNING: The current Ghosscript 9.26 has a bug which results into a SEGMENTATION FAULT
+    
+    # Ghostscript
+    PKG_GS_DEV="ghostscript-dev" \
+    PKG_GS="ghostscript" \
+    # WARNING: The current Ghosscript 9.26 has a bug which results into a SEGMENTATION FAULT at Alpine 3.9
     # and therefore we need to build our own Ghosscript 9.26 from source with additional patches
-    # PKG_IMAGES_DEV="ghostscript-dev"
-    # PKG_IMAGES="ghostscript"
-    PKG_GS_DEV="libjpeg-turbo-dev libpng-dev jasper-dev expat-dev \
-    zlib-dev tiff-dev freetype-dev lcms2-dev gtk+3.0-dev \
-    cups-dev libtool jbig2dec-dev openjpeg-dev" \
-    PKG_GS="jasper expat jbig2dec openjpeg" \
+    # Needed to compile Ghostscript 
+    #PKG_GS_DEV="libjpeg-turbo-dev libpng-dev jasper-dev expat-dev \
+    #zlib-dev tiff-dev freetype-dev lcms2-dev gtk+3.0-dev \
+    #cups-dev libtool jbig2dec-dev openjpeg-dev" \
+    #PKG_GS="jasper expat jbig2dec openjpeg" \
 
     # - MAGICK_HOME: the ImageMagick home especially for Wand
     # see at: http://docs.wand-py.org/en/latest/guide/install.html#explicit-link
     # see at: http://docs.wand-py.org/en/latest/wand/version.html
     # see at: http://e-mats.org/2017/04/imagemagick-magickwand-under-alphine-linux-python-alpine/
-    MAGICK_HOME="/usr"
+    #MAGICK_HOME="/usr"
+    PKG_MAGICK_DEV="imagemagick6-dev imagemagick6-c++" \
+    PKG_MAGICK="imagemagick6 imagemagick6-libs imagemagick6-doc"
 
 # Install GNU libc (aka glibc)
 # https://github.com/sgerrand/alpine-pkg-glibc
@@ -71,7 +76,7 @@ COPY LOCALE.md /init/
 RUN \
 
     ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
-    ALPINE_GLIBC_PACKAGE_VERSION="2.29-r0" && \
+    ALPINE_GLIBC_PACKAGE_VERSION="2.30-r0" && \
     ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
     ALPINE_GLIBC_BIN_PACKAGE_FILENAME="glibc-bin-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
     ALPINE_GLIBC_I18N_PACKAGE_FILENAME="glibc-i18n-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
@@ -108,136 +113,159 @@ RUN \
        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
 
-COPY ghostscript /init/ghostscript/
+RUN wget "https://www.archlinux.org/packages/core/x86_64/libutil-linux/download/" -O /tmp/libutil-linux.tar.xz \
+    && mkdir -p /tmp/libutil-linux \
+    && tar -xf /tmp/libutil-linux.tar.xz -C /tmp/libutil-linux \
+    && cp /tmp/libutil-linux/usr/lib/* /usr/glibc-compat/lib \
+    && /usr/glibc-compat/sbin/ldconfig \
+    && rm -rf /tmp/libutil-linux /tmp/libutil-linux.tar.xz
+
+# TODO
+# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/ld-linux-x86-64.so.2 is not a symbolic link
+# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/libsmartcols.so.1 is not a symbolic link
+# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/libmount.so.1 is not a symbolic link
+# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/libuuid.so.1 is not a symbolic link
+# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/libblkid.so.1 is not a symbolic link
+# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/libfdisk.so.1 is not a symbolic link
+
+# Copy the necessary Ghostscript 9.26 patches
+#COPY ghostscript /init/ghostscript/
+
+# TODO
+# ERROR: comicapi 2.0 has requirement natsort==3.5.2, but you'll have natsort 6.2.0 which is incompatible.
 RUN \
     echo "--- Update the package list ------------------------------------------------" && \
     apk -U upgrade && \
 
     echo "--- Install applications via package manager -------------------------------" && \
-    apk -U add --no-cache $PKG_DEV $PKG_PYTHON $PKG_IMAGES_DEV $PKG_IMAGES $PKG_GS_DEV $PKG_GS && \
+    apk -U add --no-cache $PKG_DEV $PKG_PYTHON $PKG_IMAGES_DEV $PKG_IMAGES $PKG_GS_DEV $PKG_GS $PKG_MAGICK_DEV $PKG_MAGICK && \
 
     echo "--- Upgrade pip to the latest version --------------------------------------" && \
     pip install --upgrade pip && \
 
     echo "--- Install python packages via pip ----------------------------------------" && \
     pip --no-cache-dir install --upgrade \
-      setuptools \
-      pyopenssl \
+        setuptools \
+        pyopenssl \
     ### REQUIRED ###
     ### see https://github.com/janeczku/calibre-web/blob/master/requirements.txt
-      Babel \
-      Flask-Babel \
-      Flask-Login \
-      Flask-Principal \
-      singledispatch \
-      backports_abc \
-      Flask \
-      iso-639 \
-      PyPDF2 \
-      pytz \
-      requests \
-      SQLAlchemy \
-      tornado \
-      Wand \
-      unidecode \
-      Pillow \
+        'Babel>=1.3' \
+        'Flask-Babel>=0.11.1' \
+        'Flask-Login>=0.3.2' \
+        'Flask-Principal>=0.3.2' \
+        'singledispatch>=3.4.0.0' \
+        'backports_abc>=0.4' \
+        'Flask>=1.0.2' \
+        'iso-639>=0.4.5' \
+        'PyPDF2==1.26.0' \
+        'pytz>=2016.10' \
+        'requests>=2.11.1' \
+        'SQLAlchemy>=1.1.0' \
+        'tornado>=4.1' \
+        'Wand>=0.4.4' \
+        'unidecode>=0.04.19' \
     ### OPTIONAL ###
     ### https://github.com/janeczku/calibre-web/blob/master/optional-requirements.txt
-      # GDrive Integration
-      google-api-python-client \
-      gevent \
-      greenlet \
-      httplib2 \
-      oauth2client \
-      uritemplate \
-      pyasn1-modules \
-      pyasn1 \
-      PyDrive \
-      PyYAML \
-      rsa \
-      six \
-      # goodreads  
-      goodreads \
-      python-Levenshtein \
-      # other
-      lxml \
-    ### ENHANCEMENT ###
-    ### from jim3ma/docker-calibre-web
-    ### needed for calibre ebook-convert command line tool
-    ### https://github.com/jim3ma/docker-calibre-web/commit/57239b65e8ccd011dc8e9ed6a731571786e12e01
-    ### https://manual.calibre-ebook.com/generated/en/ebook-convert.html
-      Flask-Dance \
-      && \
+        # GDrive Integration
+        'google-api-python-client==1.7.11' \
+        'gevent>=1.2.1' \
+        'greenlet>=0.4.12' \
+        'httplib2>=0.9.2' \
+        'oauth2client>=4.0.0' \
+        'uritemplate>=3.0.0' \
+        'pyasn1-modules>=0.0.8' \
+        'pyasn1>=0.1.9' \
+        'PyDrive>=1.3.1' \
+        'PyYAML>=3.12' \
+        'rsa==3.4.2' \
+        'six==1.10.0' \
+        # goodreads
+        'goodreads>=0.3.2' \
+        'python-Levenshtein>=0.12.0' \
+        # ldap login
+        'python_ldap>=3.0.0' \
+        'flask-simpleldap>1.3.0' \
+        #oauth
+        'flask-dance>=0.13.0' \
+        'sqlalchemy_utils>=0.33.5' \
+        # extracting metadata
+        'lxml>=3.8.0' \
+        'Pillow>=4.0.0' \
+        'rarfile>=2.7' \
+        # other
+        'natsort>=2.2.0' \
+        'git+https://github.com/OzzieIsaacs/comicapi.git@5346716578b2843f54d522f44d01bc8d25001d24#egg=comicapi' \
+    && \
 
     ### Ghostscript ###
-    echo "--- Get Ghostscript 9.26 and build it --------------------------------------" && \
+    #echo "--- Get Ghostscript 9.26 and build it --------------------------------------" && \
 
     # create temporary build directory for Ghostscript
-    mkdir -p /tmp/ghostscript && \
+    #mkdir -p /tmp/ghostscript && \
 
     # download Ghostscript
-    curl -o /tmp/ghostscript-src.tar.gz -L "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs926/ghostscript-9.26.tar.gz" && \
+    #curl -o /tmp/ghostscript-src.tar.gz -L "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs926/ghostscript-9.26.tar.gz" && \
 
     # unpack Ghostscript
-    tar xf /tmp/ghostscript-src.tar.gz -C /tmp/ghostscript --strip-components=1 && \
+    #tar xf /tmp/ghostscript-src.tar.gz -C /tmp/ghostscript --strip-components=1 && \
 
     # patch & configure Ghostscript
-    cp /init/ghostscript/* /tmp/ghostscript && \
-    cd /tmp/ghostscript && \
-    patch cups/gdevcups.c fix-sprintf.patch && \
-    patch base/gdevsclass.c fix-put_image-methode.patch && \
-    patch base/stdio_.h fix-stdio.patch && \
-    patch base/lib.mak ghostscript-system-zlib.patch && \
-    ./configure && \
+    #cp /init/ghostscript/* /tmp/ghostscript && \
+    #cd /tmp/ghostscript && \
+    #patch cups/gdevcups.c fix-sprintf.patch && \
+    #patch base/gdevsclass.c fix-put_image-methode.patch && \
+    #patch base/stdio_.h fix-stdio.patch && \
+    #patch base/lib.mak ghostscript-system-zlib.patch && \
+    #./configure && \
 
     # compile Ghostscript
-    make so all && \
+    #make so all && \
 
     # install Ghostscript
-    make soinstall && \
-    make install && \
+    #make soinstall && \
+    #make install && \
 
     ### ImageMagic ###
-    echo "--- Get ImageMagic 6 and build it ------------------------------------------" && \
-    IMAGEMAGICK_VER=$(curl --silent http://www.imagemagick.org/download/digest.rdf \
-	| grep ImageMagick-6.*tar.xz | sed 's/\(.*\).tar.*/\1/' | sed 's/^.*ImageMagick-/ImageMagick-/') && \
+    #echo "--- Get ImageMagic 6 and build it ------------------------------------------" && \
+    #IMAGEMAGICK_VER=$(curl --silent http://www.imagemagick.org/download/digest.rdf \
+	  # | grep ImageMagick-6.*tar.xz | sed 's/\(.*\).tar.*/\1/' | sed 's/^.*ImageMagick-/ImageMagick-/') && \
 
     # create temporary build directory for ImageMagic
-    mkdir -p /tmp/imagemagick && \
+    #mkdir -p /tmp/imagemagick && \
 
     # download ImageMagic
-    curl -o /tmp/imagemagick-src.tar.xz -L "http://www.imagemagick.org/download/${IMAGEMAGICK_VER}.tar.xz" && \
+    #curl -o /tmp/imagemagick-src.tar.xz -L "http://www.imagemagick.org/download/${IMAGEMAGICK_VER}.tar.xz" && \
 
     # unpack ImageMagic
-    tar xf /tmp/imagemagick-src.tar.xz -C /tmp/imagemagick --strip-components=1 && \
+    #tar xf /tmp/imagemagick-src.tar.xz -C /tmp/imagemagick --strip-components=1 && \
 
     # configure ImageMagic
-    cd /tmp/imagemagick && \
+    #cd /tmp/imagemagick && \
 
-    sed -i -e \
-	's:DOCUMENTATION_PATH="${DATA_DIR}/doc/${DOCUMENTATION_RELATIVE_PATH}":DOCUMENTATION_PATH="/usr/share/doc/imagemagick":g' \
-	configure && \
+    #sed -i -e \
+	  #'s:DOCUMENTATION_PATH="${DATA_DIR}/doc/${DOCUMENTATION_RELATIVE_PATH}":DOCUMENTATION_PATH="/usr/share/doc/imagemagick":g' \
+	  #configure && \
 
-    ./configure \
-	  --infodir=/usr/share/info \
-	  --mandir=/usr/share/man \
-	  --prefix=/usr \
-	  --sysconfdir=/etc \
-	  --with-gs-font-dir=/usr/share/fonts/Type1 \
-	  --with-gslib \
-	  --with-lcms2 \
-	  --with-modules \
-	  --without-threads \
-	  --without-x \
-	  --with-tiff \
-	  --with-xml && \
+    #./configure \
+	  #--infodir=/usr/share/info \
+	  #--mandir=/usr/share/man \
+	  #--prefix=/usr \
+	  #--sysconfdir=/etc \
+	  #--with-gs-font-dir=/usr/share/fonts/Type1 \
+	  #--with-gslib \
+	  #--with-lcms2 \
+	  #--with-modules \
+	  #--without-threads \
+	  #--without-x \
+	  #--with-tiff \
+	  #--with-xml && \
 
     # compile ImageMagic
-    make && \
+    #make && \
 
     # install ImageMagic
-    make install && \
-    find / -name '.packlist' -o -name 'perllocal.pod' -o -name '*.bs' -delete && \
+    #make install && \
+    #find / -name '.packlist' -o -name 'perllocal.pod' -o -name '*.bs' -delete && \
 
     # cleanup temporary files
     rm -rf /tmp/* 
@@ -267,12 +295,13 @@ RUN \
         xz \
         wget && \
 
+    # download Calibre version 3.48.0
     wget -O- ${CALIBRE_INSTALLER_SOURCE_CODE_URL} | \
       python -c \
       "import sys; \
        main=lambda:sys.stderr.write('Download failed\n'); \
        exec(sys.stdin.read()); \
-       main(install_dir='/opt', isolated=True)" && \
+       main(install_dir='/opt', isolated=True, version='3.48.0')" && \
 
     rm -rf /tmp/calibre-installer-cache && \
 
