@@ -1,3 +1,45 @@
+**2020-01-05 - v1.4.0**
+
+ * new base image [technosoft2000/alpine-base:3.11-1](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.11.2
+ * will be upgraded in near future to Python 3
+ * still uses Calibre version 3.48.0 to keep working ebook-convert - see at [calibre-web/issues/1056](https://github.com/janeczku/calibre-web/issues/1056)
+
+**2019-12-20 - v1.3.3**
+
+ * upgrade of [sgerrand/alpine-pkg-glibc](https://github.com/sgerrand/alpine-pkg-glibc) to version 2.30-r0
+ * uses Calibre version 3.48.0 to keep working ebook-convert - see at [calibre-web/issues/1056](https://github.com/janeczku/calibre-web/issues/1056)
+ * Added [libutil-linux](https://www.archlinux.org/packages/core/x86_64/libutil-linux/) glibc package from Arch Linux to fix issue #52
+ * Updated Libraries
+
+| **Program library** | **Installed Version** |
+| ------------------- | --------------------- |
+| Program library     | Installed             |
+| Flask_SimpleLDAP    | Installed             |
+| Sqlite	            | v3.28.0               |
+| Sqlalchemy	        | v1.3.12               |
+| Requests	          | v2.22.0               |
+| Iso 639	            | v0.4.6                |
+| Flask	              | v1.1.1                |
+| Babel	              | v2.7.0                |
+| Flask Login	        | v0.4.1                |
+| Unidecode           | Installed             |
+| Flask Principal	    | v0.4.0                |
+| WebServer Gevent	  | v1.4.0                |
+| pytz                | 2019.3                |
+| Jinja2              | v2.10.3               |
+| Werkzeug	          | v0.16.0               |
+| Python	            | 2.7.16 (default, May 6 2019, 19:35:26) [GCC 8.3.0] |
+| pySqlite	          | v2.6.0                |
+| Goodreads           | Installed but shows (Not installed) |
+| lxml	              | v4.4.2.0              |
+| Image Magick	      | ImageMagick 6.9.10-69 Q16 x86_64 2019-10-29 https://imagemagick.org |
+| Wand Version	      | 0.5.8                 |
+| PyPdf	              | v1.26.0               |
+| Comic_API	          | Installed but shows (Not installed) |
+| Pillow              | v6.2.1                |
+| Calibre converter	  | ebook-convert (calibre 3.48.0) |
+| kindlegen	          | Amazon kindlegen(Linux) V2.9 build 1028-0897292 |
+
 **2019-04-18 - v1.3.2**
 
  * upgrade of [sgerrand/alpine-pkg-glibc](https://github.com/sgerrand/alpine-pkg-glibc) to version 2.29-r0
