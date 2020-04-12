@@ -38,11 +38,25 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
-**2020-01-05 - v1.4.0**
+**2020-04-12 - v1.4.1**
 
- * new base image [technosoft2000/alpine-base:3.11-1](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.11.2
- * will be upgraded in near future to Python 3
- * still uses Calibre version 3.48.0 to keep working ebook-convert - see at [calibre-web/issues/1056](https://github.com/janeczku/calibre-web/issues/1056)
+ * new base image [technosoft2000/alpine-base:3.11-2](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.11.5
+ * upgrade of [sgerrand/alpine-pkg-glibc](https://github.com/sgerrand/alpine-pkg-glibc) to version 2.31-r0
+ * updated to Calibre 4.13.0
+ * added the packages tar xz zstd to unpack needed Arch Linux packages which are compiled with glibc
+ * still no upgrade to Python 3 because it doesn't work correct, get the following error:
+```
+[INFO] Launching Calibre-Web ...
+Traceback (most recent call last):
+  File "/calibre-web/app/cps.py", line 34, in <module>
+    from cps import create_app
+  File "/calibre-web/app/cps/__init__.py", line 28, in <module>
+    from babel import Locale as LC
+ImportError: No module named babel
+```
+ * maybe I'll switch the base image because Alpine gets to hacky to run Calibre Web correctly, because of the glibc dependencies - see also at https://pythonspeed.com/articles/base-image-python-docker-images/
+ * or maybe I'll switch to the linuxserver/calibre-web docker image and discontinue maintanance of this image
+ * IMPORTANT regarding update: if you've issues then remove the content from your volume mount -v <your Calibre Web application folder>:/calibre-web/app before you start the container
 
 For previous changes see at [full changelog](CHANGELOG.md).
 

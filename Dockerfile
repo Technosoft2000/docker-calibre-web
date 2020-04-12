@@ -1,6 +1,7 @@
-FROM technosoft2000/alpine-base:3.11-1
-MAINTAINER Technosoft2000 <technosoft2000@gmx.net>
-LABEL image.version="1.4.0" \
+FROM technosoft2000/alpine-base:3.11-2
+
+LABEL maintainer="Technosoft2000 <technosoft2000@gmx.net>" \
+      image.version="1.4.0" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
       image.date="2020-01-01" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
@@ -103,7 +104,7 @@ COPY LOCALE.md /init/
 RUN \
 
     ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
-    ALPINE_GLIBC_PACKAGE_VERSION="2.30-r0" && \
+    ALPINE_GLIBC_PACKAGE_VERSION="2.31-r0" && \
     ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
     ALPINE_GLIBC_BIN_PACKAGE_FILENAME="glibc-bin-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
     ALPINE_GLIBC_I18N_PACKAGE_FILENAME="glibc-i18n-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
@@ -113,7 +114,7 @@ RUN \
     mkdir -p /var/cache/apk && \
 
     apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
-    apk add --no-cache parallel && \
+    apk add --no-cache parallel tar xz zstd && \
 
     wget "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" \
          -O "/etc/apk/keys/sgerrand.rsa.pub" && \
@@ -140,23 +141,26 @@ RUN \
        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
 
-RUN wget "https://www.archlinux.org/packages/core/x86_64/libutil-linux/download/" -O /tmp/libutil-linux.tar.xz \
+RUN wget "https://www.archlinux.org/packages/core/x86_64/libutil-linux/download/" -O /tmp/libutil-linux.tar.zst \
     && mkdir -p /tmp/libutil-linux \
-    && tar -xf /tmp/libutil-linux.tar.xz -C /tmp/libutil-linux \
-    && cp /tmp/libutil-linux/usr/lib/* /usr/glibc-compat/lib \
+    && tar -xf /tmp/libutil-linux.tar.zst -C /tmp/libutil-linux \
+    && cp -rP /tmp/libutil-linux/usr/lib/* /usr/glibc-compat/lib \
     && /usr/glibc-compat/sbin/ldconfig \
-    && rm -rf /tmp/libutil-linux /tmp/libutil-linux.tar.xz
+    && rm -rf /tmp/libutil-linux /tmp/libutil-linux.tar.zst
 
-# TODO
-# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/ld-linux-x86-64.so.2 is not a symbolic link
-# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/libsmartcols.so.1 is not a symbolic link
-# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/libmount.so.1 is not a symbolic link
-# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/libuuid.so.1 is not a symbolic link
-# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/libblkid.so.1 is not a symbolic link
-# /usr/glibc-compat/sbin/ldconfig: /usr/glibc-compat/lib/libfdisk.so.1 is not a symbolic link
+RUN wget "https://www.archlinux.org/packages/core/x86_64/nss/download/" -O /tmp/nss.tar.zst \
+    && mkdir -p /tmp/nss \
+    && tar -xf /tmp/nss.tar.zst -C /tmp/nss \
+    && cp -rP /tmp/nss/usr/lib/* /usr/glibc-compat/lib \
+    && /usr/glibc-compat/sbin/ldconfig \
+    && rm -rf /tmp/nss /tmp/nss.tar.zst
 
-# Copy the necessary Ghostscript 9.26 patches
-#COPY ghostscript /init/ghostscript/
+RUN wget "https://www.archlinux.org/packages/core/x86_64/nspr/download/" -O /tmp/nspr.tar.zst \
+    && mkdir -p /tmp/nspr \
+    && tar -xf /tmp/nspr.tar.zst -C /tmp/nspr \
+    && cp -rP /tmp/nspr/usr/lib/* /usr/glibc-compat/lib \
+    && /usr/glibc-compat/sbin/ldconfig \
+    && rm -rf /tmp/nspr /tmp/nspr.tar.zst
 
 # TODO
 # ERROR: comicapi 2.0 has requirement natsort==3.5.2, but you'll have natsort 6.2.0 which is incompatible.
@@ -224,76 +228,6 @@ RUN \
         'git+https://github.com/OzzieIsaacs/comicapi.git@5346716578b2843f54d522f44d01bc8d25001d24#egg=comicapi' \
     && \
 
-    ### Ghostscript ###
-    #echo "--- Get Ghostscript 9.26 and build it --------------------------------------" && \
-
-    # create temporary build directory for Ghostscript
-    #mkdir -p /tmp/ghostscript && \
-
-    # download Ghostscript
-    #curl -o /tmp/ghostscript-src.tar.gz -L "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs926/ghostscript-9.26.tar.gz" && \
-
-    # unpack Ghostscript
-    #tar xf /tmp/ghostscript-src.tar.gz -C /tmp/ghostscript --strip-components=1 && \
-
-    # patch & configure Ghostscript
-    #cp /init/ghostscript/* /tmp/ghostscript && \
-    #cd /tmp/ghostscript && \
-    #patch cups/gdevcups.c fix-sprintf.patch && \
-    #patch base/gdevsclass.c fix-put_image-methode.patch && \
-    #patch base/stdio_.h fix-stdio.patch && \
-    #patch base/lib.mak ghostscript-system-zlib.patch && \
-    #./configure && \
-
-    # compile Ghostscript
-    #make so all && \
-
-    # install Ghostscript
-    #make soinstall && \
-    #make install && \
-
-    ### ImageMagic ###
-    #echo "--- Get ImageMagic 6 and build it ------------------------------------------" && \
-    #IMAGEMAGICK_VER=$(curl --silent http://www.imagemagick.org/download/digest.rdf \
-	  # | grep ImageMagick-6.*tar.xz | sed 's/\(.*\).tar.*/\1/' | sed 's/^.*ImageMagick-/ImageMagick-/') && \
-
-    # create temporary build directory for ImageMagic
-    #mkdir -p /tmp/imagemagick && \
-
-    # download ImageMagic
-    #curl -o /tmp/imagemagick-src.tar.xz -L "http://www.imagemagick.org/download/${IMAGEMAGICK_VER}.tar.xz" && \
-
-    # unpack ImageMagic
-    #tar xf /tmp/imagemagick-src.tar.xz -C /tmp/imagemagick --strip-components=1 && \
-
-    # configure ImageMagic
-    #cd /tmp/imagemagick && \
-
-    #sed -i -e \
-	  #'s:DOCUMENTATION_PATH="${DATA_DIR}/doc/${DOCUMENTATION_RELATIVE_PATH}":DOCUMENTATION_PATH="/usr/share/doc/imagemagick":g' \
-	  #configure && \
-
-    #./configure \
-	  #--infodir=/usr/share/info \
-	  #--mandir=/usr/share/man \
-	  #--prefix=/usr \
-	  #--sysconfdir=/etc \
-	  #--with-gs-font-dir=/usr/share/fonts/Type1 \
-	  #--with-gslib \
-	  #--with-lcms2 \
-	  #--with-modules \
-	  #--without-threads \
-	  #--without-x \
-	  #--with-tiff \
-	  #--with-xml && \
-
-    # compile ImageMagic
-    #make && \
-
-    # install ImageMagic
-    #make install && \
-    #find / -name '.packlist' -o -name 'perllocal.pod' -o -name '*.bs' -delete && \
-
     # cleanup temporary files
     rm -rf /tmp/* 
 
@@ -322,13 +256,13 @@ RUN \
         xz \
         wget && \
 
-    # download Calibre version 3.48.0
+    # download Calibre version 4.13.0
     wget -O- ${CALIBRE_INSTALLER_SOURCE_CODE_URL} | \
       python -c \
       "import sys; \
        main=lambda:sys.stderr.write('Download failed\n'); \
        exec(sys.stdin.read()); \
-       main(install_dir='/opt', isolated=True, version='3.48.0')" && \
+       main(install_dir='/opt', isolated=True, version='4.13.0')" && \
 
     rm -rf /tmp/calibre-installer-cache && \
 
