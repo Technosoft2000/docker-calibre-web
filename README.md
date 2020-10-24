@@ -38,6 +38,22 @@ And if you are interested in the original __Calibre__ ebook management tool then
 
 ## Updates ##
 
+**2020-10-24 - v1.5.0**
+
+ * new base image [technosoft2000/alpine-base:3.12-1](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.12.0
+ * fixed `[WARNING]: Empty continuation line found in: ...` in Dockerfile
+ * upgrade of [sgerrand/alpine-pkg-glibc](https://github.com/sgerrand/alpine-pkg-glibc) to version 2.32-r0
+ * changed glibc compiled package (ArchLinux) `libutil-linux` to new `util-linux-libs` - see issue **Build failure in v1.4.1** #87
+ * updated dependencies from `requirements.txt` and `optional-requirements.txt` - see issue **Missing jsonschema in the docker image** #90
+ * changed python from `python2` to `python3`
+ * allow **gevent 20.9.0** otherwise: 
+   - error will appear `<frozen importlib._bootstrap>:219: RuntimeWarning: greenlet.greenlet size changed, may indicate binary incompatibility. Expected 144 from C header, got 152 from PyObject`
+   - see at `gevent` where the issue was known: https://github.com/gevent/gevent/issues/1260
+ * added **unrar**
+ * **kepubify** is not added, because Alpine Linux doesn't contains a pre-build package at the moment
+ * updated Calibre **ebook-convert** from 4.13.0 to 5.3.0
+ * uses `https://github.com/Technosoft2000/docker-calibre-web/releases/download/kindlegen/kindlegen_linux_2.6_i386_v2_9.tar.gz` to download Amazon kindlegen
+
 **2020-04-12 - v1.4.1**
 
  * new base image [technosoft2000/alpine-base:3.11-2](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.11.5
@@ -69,6 +85,7 @@ For previous changes see at [full changelog](CHANGELOG.md).
  * creation of gdrive.db symlink at `/books/gdrive.db` for external access like backup possibility
  * creation of app.db symlink at `/books/app.db` for external access like backup possibility
  * support of **Amazon kindlegen** and **Calibre ebook-convert** tool to convert to MOBI
+ * **Calibre ebook-convert** uses `glibc` and therefore additional packages from **ArchLinux** are needed
 
 ## Hints & Tips ##
  
