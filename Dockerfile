@@ -180,6 +180,7 @@ RUN \
     ### REQUIRED ###
     ### see https://github.com/janeczku/calibre-web/blob/master/requirements.txt
     ### https://github.com/janeczku/calibre-web/commit/1cb640e51e52bb6a02e2cecaf6cb3e9bd2b1349e
+        'cryptography<3.4.0' \
         'Babel>=1.3,<2.9' \
         'Flask-Babel>=0.11.1,<1.1.0' \
         'Flask-Login>=0.3.2,<0.5.1' \
