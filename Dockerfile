@@ -181,56 +181,61 @@ RUN \
     ### see https://github.com/janeczku/calibre-web/blob/master/requirements.txt
     ### https://github.com/janeczku/calibre-web/commit/1cb640e51e52bb6a02e2cecaf6cb3e9bd2b1349e
         'cryptography<3.4.0' \
-        'Babel>=1.3,<2.9' \
-        'Flask-Babel>=0.11.1,<1.1.0' \
+        'Babel>=1.3, <3.0' \
+        'Flask-Babel>=0.11.1,<2.1.0' \
         'Flask-Login>=0.3.2,<0.5.1' \
         'Flask-Principal>=0.3.2,<0.5.1' \
         'singledispatch>=3.4.0.0,<3.5.0.0' \
         'backports_abc>=0.4' \
-        'Flask>=1.0.2,<1.2.0' \
+        'Flask>=1.0.2,<2.1.0' \
         'iso-639>=0.4.5,<0.5.0' \
-        'PyPDF2==1.26.0,<1.27.0' \
+        'PyPDF3>=1.0.0,<1.0.4' \
         'pytz>=2016.10' \
-        'requests>=2.11.1,<2.24.0' \
-        'SQLAlchemy>=1.3.0,<1.4.0' \
-        'tornado>=4.1,<6.1' \
-        'Wand>=0.4.4,<0.6.0' \
-        'unidecode>=0.04.19,<1.2.0' \
+        'requests>=2.11.1,<2.25.0' \
+        'SQLAlchemy>=1.3.0,<1.5.0' \
+        'tornado>=4.1,<6.2' \
+        'Wand>=0.4.4,<0.7.0' \
+        'unidecode>=0.04.19,<1.3.0' \
+        'lxml>=3.8.0,<4.7.0' \
+        'flask-wtf>=0.14.2,<0.16.0' \
+
     ### OPTIONAL ###
     ### https://github.com/janeczku/calibre-web/blob/master/optional-requirements.txt
     ### https://github.com/janeczku/calibre-web/commit/7ba014ba499df954e9019ec524293817d520212f
         # GDrive Integration
-        'google-api-python-client==1.7.11,<1.8.0' \
+        'google-api-python-client>=1.7.11,<2.1.0' \
         # allow gevent 20.9.0 otherwise: 
         # <frozen importlib._bootstrap>:219: RuntimeWarning: greenlet.greenlet size changed, may indicate binary incompatibility. Expected 144 from C header, got 152 from PyObject
         # https://github.com/gevent/gevent/issues/1260
-        'gevent>=1.2.1,<20.9.1' \
-        'greenlet>=0.4.12,<0.5.0' \
-        'httplib2>=0.9.2,<0.18.0' \
+        'gevent>20.6.0,<21.2.0' \
+        'greenlet>=0.4.17,<1.2.0' \
+        'httplib2>=0.9.2,<0.20.0' \
         'oauth2client>=4.0.0,<4.1.4' \
         'uritemplate>=3.0.0,<3.1.0' \
         'pyasn1-modules>=0.0.8,<0.3.0' \
         'pyasn1>=0.1.9,<0.5.0' \
-        'PyDrive>=1.3.1,<1.4.0' \
+        'PyDrive2>=1.3.1,<1.9.0' \
         'PyYAML>=3.12' \
-        'rsa==3.4.2,<4.1.0' \
-        'six>=1.10.0,<1.15.0' \
+        'rsa>=3.4.2,<4.8.0' \
+        'six>=1.10.0,<1.17.0' \
+        # Gmail
+        'google-auth-oauthlib>=0.4.3,<0.5.0' \
         # goodreads
         'goodreads>=0.3.2,<0.4.0' \
         'python-Levenshtein>=0.12.0,<0.13.0' \
         # ldap login
-        'python-ldap>=3.0.0,<3.3.0' \
+        'python-ldap>=3.0.0,<3.4.0' \
         'Flask-SimpleLDAP>=1.4.0,<1.5.0' \
         #oauth
-        'Flask-Dance>=1.4.0,<3.1.0' \
-        'SQLAlchemy-Utils>=0.33.5,<0.37.0' \
+        'Flask-Dance>=2.0.0,<5.1.0' \
+        'SQLAlchemy-Utils>=0.33.5,<0.38.0' \
         # extracting metadata
-        'lxml>=3.8.0,<4.6.0' \
         'Pillow>=4.0.0,<7.2.0' \
         'rarfile>=2.7' \
+        'scholarly>=1.2.0, <1.3' \
         # other
-        'natsort>=2.2.0,<7.1.0' \
-        'git+https://github.com/OzzieIsaacs/comicapi.git@b323fab55e7daba97f90bf59a4bc8de9d9c0a86b#egg=comicapi' \
+        'natsort>=2.2.0,<7.2.0' \
+        'comicapi>= 2.2.0,<2.3.0' \
         # Kobo integration
         'jsonschema>=3.2.0,<3.3.0' \
     && \
