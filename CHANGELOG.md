@@ -1,3 +1,9 @@
+**2021-10-22 - v1.6.0 - v1.6.1**
+
+ * updated dependencies from `requirements.txt` and `optional-requirements.txt` - see issue **calibre-web AttributeError: 'NoneType' object has no attribute 'exempt'** #109 - thanks to @wanoo for the related PR
+ * updated Calibre **ebook-convert** from 5.3.0 to 5.30.0
+ * upgrade of [sgerrand/alpine-pkg-glibc](https://github.com/sgerrand/alpine-pkg-glibc) to version 2.33-r0 needed by Calibre**ebook-convert**
+
 **2020-10-24 - v1.5.0**
 
  * new base image [technosoft2000/alpine-base:3.12-1](https://hub.docker.com/r/technosoft2000/alpine-base/) based on Alpine 3.12.0
