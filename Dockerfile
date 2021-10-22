@@ -1,16 +1,16 @@
 FROM technosoft2000/alpine-base:3.12-1
 
 LABEL maintainer="Technosoft2000 <technosoft2000@gmx.net>" \
-      image.version="1.5.0" \
+      image.version="1.6.0" \
       image.description="Docker image for Calibre Web, based on docker image of Alpine" \
-      image.date="2020-10-24" \
+      image.date="2021-10-22" \
       url.docker="https://hub.docker.com/r/technosoft2000/calibre-web" \
       url.github="https://github.com/Technosoft2000/docker-calibre-web"
 
 # Set basic environment settings
 ENV \
     # - VERSION: the docker image version (corresponds to the above LABEL image.version)
-    VERSION="1.5.0" \
+    VERSION="1.6.0" \
     \
     # - LANG, LANGUAGE, LC_ALL: language dependent settings (Default: en_US.UTF-8)
     LANG="en_US.UTF-8" \
@@ -268,13 +268,13 @@ RUN \
         xz \
         wget && \
     \
-    # download Calibre version 5.3.0
+    # download Calibre version 5.30.0
     wget -O- ${CALIBRE_INSTALLER_SOURCE_CODE_URL} | \
         python -c \
         "import sys; \
         main=lambda:sys.stderr.write('Download failed\n'); \
         exec(sys.stdin.read()); \
-        main(install_dir='/opt', isolated=True, version='5.3.0')" && \
+        main(install_dir='/opt', isolated=True, version='5.30.0')" && \
     \
     rm -rf /tmp/calibre-installer-cache && \
     \
