@@ -5,6 +5,8 @@
 [![](https://images.microbadger.com/badges/image/technosoft2000/calibre-web.svg)](https://microbadger.com/images/technosoft2000/calibre-web "Get your own image badge on microbadger.com")
 [![](https://images.microbadger.com/badges/version/technosoft2000/calibre-web.svg)](https://microbadger.com/images/technosoft2000/calibre-web "Get your own version badge on microbadger.com")
 
+⚠️**IMPORTANT**: Hello together, since I have almost no time to maintain this project anymore, I hereby discontinue it and recommend you to switch to the better maintained image of [linuxserver/calibre-web](https://docs.linuxserver.io/images/docker-calibre-web). Btw. thank you to [@OzzieIsaacs](https://github.com/OzzieIsaacs) and his team that they still work on [Calibre Web](https://github.com/janeczku/calibre-web) to make it better and still adding additional features over such a long time 👍
+
 ## Calibre Web - Manage your Calibre e-book collection ##
 
 [Calibre Web](https://github.com/janeczku/calibre-web) is a web app providing a clean interface for browsing, reading and downloading eBooks using an **existing Calibre database**.
